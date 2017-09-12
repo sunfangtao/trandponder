@@ -93,7 +93,6 @@ public class UserController {
     @RequestMapping("/update")
     public void updateUser(HttpServletRequest req, HttpServletResponse res) {
         try {
-
             String returnJson = null;
             UserModel user = new UserModel();
 
