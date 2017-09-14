@@ -1,7 +1,7 @@
 package com.aioute.controller;
 
-import com.aioute.dao.VersionDao;
 import com.aioute.model.VersionModel;
+import com.aioute.service.VersionService;
 import com.aioute.util.CloudError;
 import com.aioute.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 public class VersionController {
     private Logger logger = Logger.getLogger(VersionController.class);
     @Resource
-    private VersionDao versionDao;
+    private VersionService versionService;
 
     /**
      * 获取版本信息
@@ -33,7 +33,7 @@ public class VersionController {
             if (type == null || type.length() == 0) {
                 resultJson = SendAppJSONUtil.getRequireParamsMissingObject("type为必填参数");
             } else {
-                VersionModel versionModel = versionDao.getVersionInfo(type);
+                VersionModel versionModel = versionService.getVersionInfo(type);
                 if (versionModel == null) {
                     resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "没有找到相应的版本");
                 } else {

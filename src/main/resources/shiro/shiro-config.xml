@@ -8,17 +8,12 @@
     <!--1、与web.xml对应的bean -->
     <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
 
+        <property name="loginUrl" value="/loginController/login"/>
         <property name="securityManager" ref="securityManager"/>
 
         <property name="filterChainDefinitions">
             <value>
-                /loginController/login** = authc
-                /bugController/appBugUpload = anon
-                /bugController/bugFileDownload = anon
-                /appController/** = user
-                /bugController/** = user
-                /userController/** = user
-                /** = anon
+                /loginController/login = authc
             </value>
         </property>
     </bean>
@@ -29,8 +24,6 @@
         <property name="realm" ref="shiroDbRealm"/>
         <!-- session 管理器 -->
         <property name="sessionManager" ref="sessionManager"/>
-        <!-- 缓存管理器 认证由子服务器管理,权限由redis管理-->
-        <property name="cacheManager" ref="shiroCacheManager"/>
     </bean>
 
     <!--3、realm -->
@@ -56,18 +49,13 @@
         <property name="sessionManager" ref="sessionManager"/>
     </bean>
 
-    <!-- 缓存管理器 使用Ehcache实现 -->
-    <bean id="shiroCacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
-        <property name="cacheManagerConfigFile" value="classpath:cache/ehcache.xml"/>
-    </bean>
-
     <!-- 凭证匹配器 -->
     <bean id="credentialsMatcher"
           class="com.aioute.shiro.credentials.RetryLimitHashedCredentialsMatcher">
-        <property name="storedCredentialsHexEncoded" value="false" />
+        <property name="storedCredentialsHexEncoded" value="false"/>
     </bean>
 
     <!-- 密码加密 -->
-    <bean id="passwordHelper" class="com.aioute.shiro.password.PasswordHelper" />
+    <bean id="passwordHelper" class="com.aioute.shiro.password.PasswordHelper"/>
 
 </beans>

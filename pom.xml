@@ -8,12 +8,27 @@
     <name>transponder Maven Webapp</name>
     <url>http://maven.apache.org</url>
 
+    <!-- 仓库地址 -->
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <name>Team Nexus Repository</name>
+            <url>http://221.0.91.34:5081/nexus/content/groups/public</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.aioute.messagesend</groupId>
+            <artifactId>messagesend</artifactId>
+            <version>1.0</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
@@ -151,12 +166,18 @@
             <version>2.9.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.38</version>
+        </dependency>
 
     </dependencies>
     <build>
         <finalName>transponder</finalName>
         <filters>
-            <filter>src/main/filters/filter-${env}.properties</filter>
+            <filter>src/main/filter/filter-${env}.properties</filter>
         </filters>
         <resources>
             <resource>

@@ -1,36 +1,36 @@
 package com.aioute.controller;
 
-import com.aioute.dao.UserDao;
+import com.aioute.model.CodeModel;
 import com.aioute.model.UserModel;
-import com.aioute.reflect.ReflectUtil;
+import com.aioute.service.CodeService;
+import com.aioute.service.UserService;
+import com.aioute.shiro.password.PasswordHelper;
 import com.aioute.util.CloudError;
-import com.aioute.util.CloudParams.TypeEnum;
-import com.aioute.util.FileDownUpload;
+import com.aioute.util.DateUtil;
 import com.aioute.util.SendAppJSONUtil;
-import com.aioute.util.SendJSONUtil;
-import com.aioute.vo.UserVO;
-import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.List;
 import java.util.UUID;
 
 @Controller
 @RequestMapping("user")
 public class UserController {
+
     private Logger logger = Logger.getLogger(UserController.class);
+
     @Resource
-    private UserDao userDao;
+    private UserService userService;
+    @Resource
+    private CodeService codeService;
+    @Resource
+    private PasswordHelper passwordHelper;
 
     /**
      * 更新用户的头像
@@ -46,9 +46,9 @@ public class UserController {
 //
 //            UserVO currentUser = null;
 //            if (userId != null && userId.length() > 0) {
-//                currentUser = userDao.obtainUserInfoById(userId);
+//                currentUser = userService.obtainUserInfoById(userId);
 //            } else {
-//                currentUser = userDao.obtainUserInfoByPhone((String) SecurityUtils.getSubject().getPrincipal());
+//                currentUser = userService.obtainUserInfoByPhone((String) SecurityUtils.getSubject().getPrincipal());
 //            }
 //
 //            logger.info("更新用户：" + currentUser.getName() + "的头像");
@@ -63,7 +63,7 @@ public class UserController {
 //            if (picUrl != null) {
 //                // 上传成功
 //                currentUser.setHeadPicUrl(picUrl);
-//                userDao.updateUser(currentUser);
+//                userService.updateUser(currentUser);
 //                // 更新IM系统用户的头像
 //                imOperate.updateUser(currentUser);
 //                // 删除本地文件
@@ -100,10 +100,6 @@ public class UserController {
             String sex = req.getParameter("sex");
             String push_id = req.getParameter("push_id");
             String email = req.getParameter("email");
-            String del_flag = req.getParameter("del_flag");
-            String login_time = req.getParameter("login_time");
-            String login_type = req.getParameter("login_type");
-            String login_id = req.getParameter("login_id");
 
             if (StringUtils.hasText(name)) {
                 user.setName(name);
@@ -117,20 +113,8 @@ public class UserController {
             if (StringUtils.hasText(email)) {
                 user.setEmail(email);
             }
-            if (StringUtils.hasText(del_flag)) {
-                user.setDel_flag(del_flag.equals("0") ? 0 : 1);
-            }
-            if (StringUtils.hasText(login_time)) {
-                user.setLogin_time(login_time);
-            }
-            if (StringUtils.hasText(login_type)) {
-                user.setLogin_type(login_type);
-            }
-            if (StringUtils.hasText(login_id)) {
-                user.setLogin_id(login_id);
-            }
 
-            if (userDao.updateUser(user)) {
+            if (userService.updateUser(user)) {
                 returnJson = SendAppJSONUtil.getNormalString("更新成功!");
             } else {
                 returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "更新失败!");
@@ -146,65 +130,59 @@ public class UserController {
      * 添加用户
      */
     @RequestMapping("/add")
-    public void addUser(MultipartFile file, HttpServletRequest req, HttpServletResponse res) {
+    public void addUser(HttpServletRequest req, HttpServletResponse res) {
         try {
-            UserVO user = new UserVO();
+            String returnJson = null;
 
-            ReflectUtil<UserVO> reflectUtil = new ReflectUtil<UserVO>(user);
-            List<Method> setMethodList = ReflectUtil.obtainSetMethods(UserVO.class);
-            for (Method method : setMethodList) {
-                String methodName = method.getName();
-                String tempName = methodName.substring(3);
-                String pamam = req.getParameter(tempName.substring(0, 1).toLowerCase() + tempName.substring(1));
-                reflectUtil.setter(method, pamam);
+            UserModel user = new UserModel();
+            String phone = req.getParameter("phone");
+            String code = req.getParameter("code");
+            String password = req.getParameter("password");
+            if (!StringUtils.hasText(code)) {
+                returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请输入验证码!");
             }
-            user.setUserId(UUID.randomUUID().toString());
-            user.setLevel("3");
-
-            UserVO loginUser = userDao.obtainUserInfoByPhone((String) SecurityUtils.getSubject().getPrincipal());
-
-            JSONObject jsonObject = null;
-            if (!loginUser.getLevel().equals("1")) {
-                jsonObject = SendJSONUtil.getFailResultObject(TypeEnum.NODATA.getValue(), "无权新建账号");
-            } else {
-                if (user.getPhone() == null || user.getPhone().length() == 0) {
-                    jsonObject = SendJSONUtil.getRequireParamsMissingObject("phone为必填字段");
-                } else if (user.getPassword() == null || user.getPassword().length() == 0) {
-                    jsonObject = SendJSONUtil.getRequireParamsMissingObject("password为必填字段");
+            if (!StringUtils.hasText(password)) {
+                returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请输入密码!");
+            }
+            if (!StringUtils.hasText(phone)) {
+                returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请输入手机号!");
+            }
+            if (returnJson != null) {
+                res.getWriter().write(returnJson);
+                return;
+            }
+            UserModel existUser = userService.getUserInfoByPhone(phone);
+            if (existUser != null) {
+                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.REPEAT.getValue(), "手机号已被占用!");
+                res.getWriter().write(returnJson);
+                return;
+            }
+            CodeModel codeModel = codeService.getCodeByPhone(phone);
+            if (codeModel == null) {
+                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "请先获取验证码!");
+                res.getWriter().write(returnJson);
+                return;
+            }
+            long range = (DateUtil.getTime(DateUtil.getCurDate()) - DateUtil.getTime(codeModel.getCreate_date())) / 60 / 1000;
+            if (range > codeModel.getDuration()) {
+                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "请重新获取验证码!");
+                res.getWriter().write(returnJson);
+                return;
+            }
+            if (code.equals(codeModel.getCode())) {
+                user.setCreate_time(DateUtil.getCurDate());
+                user.setLogin_name(phone);
+                user.setPassword(passwordHelper.encryptPassword(null, password));
+                user.setId(UUID.randomUUID().toString());
+                if (userService.addUser(user)) {
+                    returnJson = SendAppJSONUtil.getNormalString("注册成功!");
                 } else {
-                    UserVO existUser = new UserVO();
-                    existUser.setPhone(user.getPhone());
-                    List<UserVO> userList = userDao.obtainUserList(existUser, 0, 0, -1);
-                    if (userList != null && userList.size() > 0) {
-                        jsonObject = SendJSONUtil.getFailResultObject(TypeEnum.DUPLICATEACCOUNT.getValue(), "手机号被占用");
-                    } else {
-                        if (file != null) {
-                            String fileInfo = FileDownUpload.uploadPicFile(file, req);
-                            String filePath = fileInfo.split(",")[0];
-                            String fileName = fileInfo.split(",")[1];
-
-                            String picUrl = qiNiuUtil.upload("", fileName, filePath + File.separator + fileName);
-                            user.setHeadPicUrl(picUrl);
-                        }
-                        // 密码加密
-                        user.setPassword(passwordHelper.encryptPassword(null, user.getPassword()));
-                        // IM系统用户名和密码
-                        user.setImUserName(passwordHelper.encryptIMPassword(user.getPhone()));
-                        user.setImPassword(passwordHelper.encryptIMPassword(user.getPassword()));
-
-                        userDao.addUser(user);
-
-                        // IM系统中注册用户
-                        imOperate.addUser(user);
-
-                        jsonObject = SendJSONUtil.getNormalObject(new JSONObject());
-                    }
+                    returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "注册失败!");
                 }
+            } else {
+                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.PERMISSION.getValue(), "验证码错误!");
             }
-
-            logger.info("用户：" + loginUser.getPhone() + "新建用户\n" + "\n" + jsonObject.toString());
-
-            res.getWriter().write(jsonObject.toString());
+            res.getWriter().write(returnJson);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -213,30 +191,17 @@ public class UserController {
     /**
      * 单个用户详情
      *
-     * @param req
      * @param res
      */
     @RequestMapping("/detail")
-    public void userDetail(HttpServletRequest req, HttpServletResponse res) {
+    public void userDetail(HttpServletResponse res) {
         try {
-            JSONObject jsonObject = null;
-
-            String userId = req.getParameter("userId");
-
-            if (userId == null || userId.length() == 0) {
-                userId = userDao.obtainUserInfoByPhone((String) SecurityUtils.getSubject().getPrincipal()).getUserId();
+            String userId = (String) SecurityUtils.getSubject().getSession().getAttribute("userId");
+            UserModel userModel = userService.getUserInfoById(userId);
+            if (userModel != null) {
+                userModel.setPassword("******");
             }
-
-            UserVO user = userDao.obtainUserInfoById(userId);
-
-            if (user == null) {
-                jsonObject = SendJSONUtil.getNullResultObject();
-            } else {
-                user.setPassword("******");
-                user.setImPassword("******");
-                jsonObject = SendJSONUtil.getNormalObject(user);
-            }
-            res.getWriter().write(jsonObject.toString());
+            res.getWriter().write(SendAppJSONUtil.getNormalString(userModel));
         } catch (Exception e) {
             e.printStackTrace();
         }

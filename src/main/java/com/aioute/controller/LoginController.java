@@ -1,7 +1,7 @@
 package com.aioute.controller;
 
-import com.aioute.dao.UserDao;
 import com.aioute.model.UserModel;
+import com.aioute.service.UserService;
 import com.aioute.util.CloudError;
 import com.aioute.util.DateUtil;
 import com.aioute.util.SendAppJSONUtil;
@@ -23,7 +23,7 @@ public class LoginController {
     private Logger logger = Logger.getLogger(LoginController.class);
 
     @Resource
-    private UserDao userDao;
+    private UserService userService;
 
     /**
      * 用户登录
@@ -47,14 +47,14 @@ public class LoginController {
                     logger.info("用户请求未认证");
                     resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NOTLOGIN.getValue(), "请先登录！");
                 } else {
-                    UserModel user = userDao.getUserInfoById(phone);
+                    UserModel user = userService.getUserInfoByPhone(phone);
                     user.setLogin_time(DateUtil.getCurDate());
 
                     if (user.getDel_flag() > 0) {
                         // 用户被禁用
                         resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.PERMISSION.getValue(), "账号被禁用，无权登录");
                     } else {
-                        userDao.updateUser(user);
+                        userService.updateUser(user);
                         user.setPassword("******");
                         resultJson = SendAppJSONUtil.getNormalString(user);
                     }

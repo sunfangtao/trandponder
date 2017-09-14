@@ -1,8 +1,8 @@
-package com.aioute.dao;
+package com.aioute.service;
 
 import com.aioute.model.CodeModel;
 
-public interface CodeDao {
+public interface CodeService {
 
     public boolean addCode(CodeModel codeModel,boolean isUpdate);
 
@@ -10,3 +10,4 @@ public interface CodeDao {
 
     public CodeModel getCodeByPhone(String phone);
 }
+

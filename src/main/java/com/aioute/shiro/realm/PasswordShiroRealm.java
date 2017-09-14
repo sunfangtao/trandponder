@@ -10,6 +10,7 @@ import com.aioute.dao.UserDao;
 import com.aioute.model.UserModel;
 import com.aioute.shiro.password.PasswordHelper;
 import org.apache.log4j.Logger;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -69,7 +70,7 @@ public class PasswordShiroRealm extends AuthorizingRealm {
         if (!StringUtils.hasText(username)) {
             return null;
         }
-        UserModel user = userDao.getUserInfoById(username);
+        UserModel user = userDao.getUserInfoByPhone(username);
         if (user == null) {
             return null;
         }
@@ -77,6 +78,8 @@ public class PasswordShiroRealm extends AuthorizingRealm {
         if (!StringUtils.hasText(password)) {
             return null;
         }
+
+        SecurityUtils.getSubject().getSession().setAttribute("userId", user.getId());
         return new SimpleAuthenticationInfo(username, password.substring(32), ByteSource.Util.bytes(user
                 .getPassword().substring(0, 32)), getName());
     }

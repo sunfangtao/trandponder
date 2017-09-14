@@ -5,7 +5,7 @@ public class CodeModel {
     private String phone;
     private String code;
     private String create_date;
-    private int duration;
+    private int duration = 5;
 
     public String getPhone() {
         return phone;
