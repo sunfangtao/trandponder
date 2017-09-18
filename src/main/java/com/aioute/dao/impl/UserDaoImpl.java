@@ -64,6 +64,33 @@ public class UserDaoImpl implements UserDao {
     }
 
     public boolean updateUser(UserModel userModel) {
+        Connection con = null;
+        PreparedStatement ps = null;
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("update app_user set password=?,email=?,sex=?,name=?,push_id=?,login_time=?,login_id=?,update_time=? where id=?");
+
+        try {
+            con = sqlConnectionFactory.getConnection();
+            ps = con.prepareStatement(sb.toString());
+            ps.setString(1, userModel.getPassword());
+            ps.setString(2, userModel.getEmail());
+            ps.setString(3, userModel.getSex());
+            ps.setString(4, userModel.getName());
+            ps.setString(5, userModel.getPush_id());
+            ps.setString(6, userModel.getLogin_time());
+            ps.setString(7, userModel.getLogin_id());
+            ps.setString(8, userModel.getUpdate_time());
+            ps.setString(9, userModel.getId());
+            int result = ps.executeUpdate();
+            if (result > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            sqlConnectionFactory.closeConnetion(con, ps, null);
+        }
         return false;
     }
 
@@ -72,7 +99,7 @@ public class UserDaoImpl implements UserDao {
         PreparedStatement ps = null;
         ResultSet rs = null;
         StringBuffer sb = new StringBuffer();
-        sb.append("insert into app_user (id,login_name,password,login_type,login_id) values (?,?,?,?,?)");
+        sb.append("insert into app_user (id,login_name,password,login_type,login_id,create_time) values (?,?,?,?,?,?)");
         try {
             con = sqlConnectionFactory.getConnection();
             ps = con.prepareStatement(sb.toString());
@@ -81,6 +108,7 @@ public class UserDaoImpl implements UserDao {
             ps.setString(3, userModel.getPassword());
             ps.setString(4, userModel.getLogin_type());
             ps.setString(5, userModel.getLogin_id());
+            ps.setString(6, userModel.getCreate_time());
             int result = ps.executeUpdate();
             if (result > 0) {
                 return true;

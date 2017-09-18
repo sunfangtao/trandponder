@@ -15,6 +15,7 @@ public class UserModel {
     private String email;// '邮箱'
     private int del_flag;// 删除标志
     private String login_time;// 登录时间
+    private String update_time;
 
     public String getId() {
         return id;
@@ -118,5 +119,13 @@ public class UserModel {
 
     public void setLogin_time(String login_time) {
         this.login_time = login_time;
+    }
+
+    public String getUpdate_time() {
+        return update_time;
+    }
+
+    public void setUpdate_time(String update_time) {
+        this.update_time = update_time;
     }
 }

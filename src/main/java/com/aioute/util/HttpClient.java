@@ -3,7 +3,6 @@ package com.aioute.util;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -47,11 +46,12 @@ public class HttpClient {
 
     public void send(String url) {
         try {
-            if ((this.type.length() == 0 && this.request.getMethod().equalsIgnoreCase("GET")) || this.type.equals("GET")) {
-                sendByGet(url);
-            } else {
-                sendByPost(url);
-            }
+//            if ((this.type.length() == 0 && this.request.getMethod().equalsIgnoreCase("GET")) || this.type.equals("GET")) {
+//                sendByGet(url);
+//            } else {
+//                sendByPost(url);
+//            }
+            sendByGet(url);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,26 +73,4 @@ public class HttpClient {
         }
     }
 
-    private void sendByPost(String url) throws IOException {
-        this.response.setContentType("text/html");
-        PrintWriter out = this.response.getWriter();
-        out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">");
-        out.println("<HTML>");
-        out.println(" <HEAD><TITLE>sender</TITLE></HEAD>");
-        out.println(" <BODY>");
-        out.println("<form name=\"submitForm\" action=\"" + url + "\" method=\"post\">");
-        if (this.parameter.size() > 0) {
-            Iterator<String> it = this.parameter.keySet().iterator();
-            while (it.hasNext()) {
-                String key = it.next();
-                out.println("<input type=\"hidden\" name=\"" + key + "\" value=\"" + this.parameter.get(key) + "\"/>");
-            }
-        }
-        out.println("</from>");
-        out.println("<script>window.document.submitForm.submit();</script> ");
-        out.println(" </BODY>");
-        out.println("</HTML>");
-        out.flush();
-        out.close();
-    }
 }

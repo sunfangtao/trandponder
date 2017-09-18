@@ -23,7 +23,7 @@ public class CodeDaoImpl implements CodeDao {
         StringBuffer sb = new StringBuffer();
 
         if (isUpdate) {
-            sb.append("update phone_code set code=?,create_date=?,effective_duration where phone=?");
+            sb.append("update phone_code set code=?,create_date=?,effective_duration=? where phone=?");
         } else {
             sb.append("insert into phone_code (code,create_date,effective_duration,phone) values (?,?,?,?)");
         }

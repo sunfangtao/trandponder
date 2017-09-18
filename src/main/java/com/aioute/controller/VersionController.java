@@ -29,11 +29,11 @@ public class VersionController {
     public void version(HttpServletRequest req, HttpServletResponse res) {
         try {
             String resultJson = null;
-            String type = req.getParameter("type");
-            if (type == null || type.length() == 0) {
+            String style = req.getParameter("style");
+            if (style == null || style.length() == 0) {
                 resultJson = SendAppJSONUtil.getRequireParamsMissingObject("type为必填参数");
             } else {
-                VersionModel versionModel = versionService.getVersionInfo(type);
+                VersionModel versionModel = versionService.getVersionInfo(style);
                 if (versionModel == null) {
                     resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "没有找到相应的版本");
                 } else {

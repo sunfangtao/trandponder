@@ -5,14 +5,13 @@ import com.aioute.model.UserModel;
 import com.aioute.service.CodeService;
 import com.aioute.service.UserService;
 import com.aioute.shiro.password.PasswordHelper;
-import com.aioute.util.CloudError;
-import com.aioute.util.DateUtil;
-import com.aioute.util.SendAppJSONUtil;
+import com.aioute.util.*;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -38,51 +37,48 @@ public class UserController {
      * @param req
      * @param res
      */
-//    @RequestMapping("/headPic")
-//    public void updateUserHeadPic(MultipartFile file, HttpServletRequest req, HttpServletResponse res) {
-//        // 保存文件
-//        try {
-//            String userId = req.getParameter("userId");
-//
-//            UserVO currentUser = null;
-//            if (userId != null && userId.length() > 0) {
-//                currentUser = userService.obtainUserInfoById(userId);
-//            } else {
-//                currentUser = userService.obtainUserInfoByPhone((String) SecurityUtils.getSubject().getPrincipal());
-//            }
-//
-//            logger.info("更新用户：" + currentUser.getName() + "的头像");
-//            String fileInfo = FileDownUpload.uploadPicFile(file, req);
-//            String filePath = fileInfo.split(",")[0];
-//            String fileName = fileInfo.split(",")[1];
-//
-//            String picUrl = qiNiuUtil.upload(currentUser.getHeadPicUrl(), fileName, filePath + File.separator
-//                    + fileName);
-//
-//            JSONObject jsonObject = null;
-//            if (picUrl != null) {
-//                // 上传成功
-//                currentUser.setHeadPicUrl(picUrl);
-//                userService.updateUser(currentUser);
-//                // 更新IM系统用户的头像
-//                imOperate.updateUser(currentUser);
-//                // 删除本地文件
-//                FileDownUpload.deleteFile(new File(filePath, fileName));
-//
-//                // 返回数据中密码改为******
-//                currentUser.setPassword("******");
-//                currentUser.setImPassword("******");
-//                jsonObject = SendJSONUtil.getNormalObject(currentUser);
-//            } else {
-//                // 上传失败
-//                jsonObject = SendJSONUtil.getFailResultObject(TypeEnum.IOException.getValue(), "上传失败");
-//            }
-//            logger.info(jsonObject.toString());
-//            res.getWriter().write(jsonObject.toString());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @RequestMapping("/headPic")
+    public void updateUserHeadPic(MultipartFile file, HttpServletRequest req, HttpServletResponse res) {
+        try {
+            String returnJson = null;
+
+            FtpUtil ftpUtil = new FtpUtil();
+            ftpUtil.conn();
+            String dir = "/data/ftp/";
+            boolean boo = false;
+
+            String temp = DateUtil.getTime(DateUtil.getCurDate()) + "";
+            String fileName = SecurityUtil.getUserId().replace("-", "") + temp.substring(temp.length() - 7) + ".jpg";
+            try {
+                ftpUtil.createDirecrotys(dir);
+                boo = ftpUtil.upload(dir, fileName, file.getInputStream());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            ftpUtil.close();
+            String picurl = "ftp://" + ftpUtil.getUsername() + ":" + ftpUtil.getPassword() + "@" + ftpUtil.getUrl() + ":" + ftpUtil.getPort() + "/" + fileName;
+
+            if (boo) {
+                // 上传成功
+                UserModel user = new UserModel();
+                user.setId(SecurityUtil.getUserId());
+                user.setPhoto(picurl);
+                userService.updateUser(user, false);
+
+                // 返回数据中密码改为******
+                user = userService.getUserInfoById(user.getId());
+                user.setPassword("******");
+                returnJson = SendAppJSONUtil.getNormalString(user);
+            } else {
+                // 上传失败
+                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.IOException.getValue(), "上传失败");
+            }
+            logger.info(returnJson);
+            res.getWriter().write(returnJson);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * 更新用户的信息
@@ -100,6 +96,8 @@ public class UserController {
             String sex = req.getParameter("sex");
             String push_id = req.getParameter("push_id");
             String email = req.getParameter("email");
+            String login_type = req.getParameter("login_type");
+            String login_id = req.getParameter("login_id");
 
             if (StringUtils.hasText(name)) {
                 user.setName(name);
@@ -113,13 +111,18 @@ public class UserController {
             if (StringUtils.hasText(email)) {
                 user.setEmail(email);
             }
-
-            if (userService.updateUser(user)) {
+            if (StringUtils.hasText(login_id)) {
+                user.setLogin_id(login_id);
+            }
+            if (StringUtils.hasText(login_type)) {
+                user.setLogin_type(login_type);
+            }
+            user.setId(SecurityUtil.getUserId());
+            if (userService.updateUser(user, true)) {
                 returnJson = SendAppJSONUtil.getNormalString("更新成功!");
             } else {
                 returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "更新失败!");
             }
-
             res.getWriter().write(returnJson);
         } catch (Exception e) {
             e.printStackTrace();
@@ -196,12 +199,64 @@ public class UserController {
     @RequestMapping("/detail")
     public void userDetail(HttpServletResponse res) {
         try {
-            String userId = (String) SecurityUtils.getSubject().getSession().getAttribute("userId");
+            String userId = SecurityUtil.getUserId();
             UserModel userModel = userService.getUserInfoById(userId);
             if (userModel != null) {
                 userModel.setPassword("******");
             }
             res.getWriter().write(SendAppJSONUtil.getNormalString(userModel));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 修改用户密码
+     *
+     * @param res
+     */
+    @RequestMapping("/updPassword")
+    public void updatePassword(HttpServletRequest req, HttpServletResponse res) {
+        try {
+            String returnJson = null;
+            String code = req.getParameter("code");
+            String password = req.getParameter("password");
+            if (!StringUtils.hasText(code)) {
+                returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请输入验证码!");
+            }
+            if (!StringUtils.hasText(password)) {
+                returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请输入密码!");
+            }
+            if (StringUtils.hasText(returnJson)) {
+                res.getWriter().write(returnJson);
+            }
+            String phone = (String) SecurityUtils.getSubject().getPrincipal();
+            CodeModel codeModel = codeService.getCodeByPhone(phone);
+            if (codeModel == null) {
+                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "请先获取验证码!");
+                res.getWriter().write(returnJson);
+                return;
+            }
+            long range = (DateUtil.getTime(DateUtil.getCurDate()) - DateUtil.getTime(codeModel.getCreate_date())) / 60 / 1000;
+            if (range > codeModel.getDuration()) {
+                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "请重新获取验证码!");
+                res.getWriter().write(returnJson);
+                return;
+            }
+
+            UserModel user = new UserModel();
+            if (code.equals(codeModel.getCode())) {
+                user.setPassword(passwordHelper.encryptPassword(null, password));
+                user.setId(SecurityUtil.getUserId());
+                if (userService.updateUser(user, true)) {
+                    returnJson = SendAppJSONUtil.getNormalString("修改成功!");
+                } else {
+                    returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "修改失败!");
+                }
+            } else {
+                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.PERMISSION.getValue(), "验证码错误!");
+            }
+            res.getWriter().write(returnJson);
         } catch (Exception e) {
             e.printStackTrace();
         }

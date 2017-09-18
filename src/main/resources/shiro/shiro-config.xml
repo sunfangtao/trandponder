@@ -8,7 +8,8 @@
     <!--1、与web.xml对应的bean -->
     <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
 
-        <property name="loginUrl" value="/loginController/login"/>
+        <property name="loginUrl" value="/loginController/login"></property>
+        <property name="successUrl" value="/loginController/login" />
         <property name="securityManager" ref="securityManager"/>
 
         <property name="filterChainDefinitions">

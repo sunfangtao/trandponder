@@ -54,7 +54,7 @@ public class LoginController {
                         // 用户被禁用
                         resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.PERMISSION.getValue(), "账号被禁用，无权登录");
                     } else {
-                        userService.updateUser(user);
+                        userService.updateUser(user, true);
                         user.setPassword("******");
                         resultJson = SendAppJSONUtil.getNormalString(user);
                     }
