@@ -2,6 +2,8 @@ package com.aioute.service;
 
 import com.aioute.model.Permission;
 
+import java.util.List;
+
 public interface PermissionService {
 
     /**
@@ -11,4 +13,6 @@ public interface PermissionService {
      * @return
      */
     public Permission getUrlByType(String type);
+
+    public List<Permission> getAllAppPermission();
 }

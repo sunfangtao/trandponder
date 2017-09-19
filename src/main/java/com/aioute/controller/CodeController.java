@@ -7,7 +7,6 @@ import com.aioute.util.DateUtil;
 import com.aioute.util.MessageSendUtil;
 import com.aioute.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,23 +36,6 @@ public class CodeController {
             } else {
                 returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请输入手机号!");
             }
-            logger.info("生成验证码：" + returnJson);
-            res.getWriter().write(returnJson);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 生成修改密码的验证码
-     *
-     * @param res
-     */
-    @RequestMapping("updPassCreate")
-    public void updPassCreate(HttpServletResponse res) {
-        try {
-            String phone = (String) SecurityUtils.getSubject().getPrincipal();
-            String returnJson = createCode(phone);
             logger.info("生成验证码：" + returnJson);
             res.getWriter().write(returnJson);
         } catch (Exception e) {

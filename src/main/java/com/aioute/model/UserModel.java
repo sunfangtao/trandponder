@@ -16,6 +16,9 @@ public class UserModel {
     private int del_flag;// 删除标志
     private String login_time;// 登录时间
     private String update_time;
+    private String hand_reverse;// 身份证背面
+    private String hand_front;// 身份证正面
+    private int verify_status;// 认证状态
 
     public String getId() {
         return id;
@@ -127,5 +130,29 @@ public class UserModel {
 
     public void setUpdate_time(String update_time) {
         this.update_time = update_time;
+    }
+
+    public String getHand_reverse() {
+        return hand_reverse;
+    }
+
+    public void setHand_reverse(String hand_reverse) {
+        this.hand_reverse = hand_reverse;
+    }
+
+    public String getHand_front() {
+        return hand_front;
+    }
+
+    public void setHand_front(String hand_front) {
+        this.hand_front = hand_front;
+    }
+
+    public int getVerify_status() {
+        return verify_status;
+    }
+
+    public void setVerify_status(int verify_status) {
+        this.verify_status = verify_status;
     }
 }

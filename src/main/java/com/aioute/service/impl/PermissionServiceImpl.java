@@ -6,6 +6,7 @@ import com.aioute.service.PermissionService;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -23,5 +24,9 @@ public class PermissionServiceImpl implements PermissionService {
             return permission;
         }
         return permissionDao.getUrlByType(type);
+    }
+
+    public List<Permission> getAllAppPermission(){
+        return permissionDao.getAllAppPermission();
     }
 }

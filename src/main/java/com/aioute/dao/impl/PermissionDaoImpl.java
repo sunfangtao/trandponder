@@ -9,6 +9,8 @@ import javax.annotation.Resource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class PermissionDaoImpl implements PermissionDao {
@@ -42,5 +44,32 @@ public class PermissionDaoImpl implements PermissionDao {
             sqlConnectionFactory.closeConnetion(con, ps, rs);
         }
         return permission;
+    }
+
+    public List<Permission> getAllAppPermission(){
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        List<Permission> permissionList = new ArrayList<Permission>();
+        StringBuffer sb = new StringBuffer();
+        sb.append("select * from app_permission where is_user = 1");
+
+        try {
+            con = sqlConnectionFactory.getConnection();
+            ps = con.prepareStatement(sb.toString());
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Permission permission = new Permission();
+                permission.setUrl(rs.getString("url"));
+                permission.setType(rs.getString("type"));
+                permissionList.add(permission);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            sqlConnectionFactory.closeConnetion(con, ps, rs);
+        }
+        return permissionList;
     }
 }

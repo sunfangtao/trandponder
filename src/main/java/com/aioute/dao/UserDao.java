@@ -11,4 +11,6 @@ public interface UserDao {
     public boolean updateUser(UserModel userModel);
 
     public boolean addUser(UserModel userModel);
+
+    public UserModel getUserInfoByLoginId(String login_id);
 }

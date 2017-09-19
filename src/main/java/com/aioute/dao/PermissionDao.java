@@ -2,6 +2,8 @@ package com.aioute.dao;
 
 import com.aioute.model.Permission;
 
+import java.util.List;
+
 public interface PermissionDao {
 
     /**
@@ -11,4 +13,6 @@ public interface PermissionDao {
      * @return
      */
     public Permission getUrlByType(String type);
+
+    public List<Permission> getAllAppPermission();
 }

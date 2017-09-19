@@ -51,11 +51,21 @@ public class UserServiceImpl implements UserService {
         if (!isFromApp && userModel.getPhoto() != null) {
             existUser.setPhoto(userModel.getPhoto());
         }
+        if (!isFromApp && userModel.getHand_front() != null) {
+            existUser.setHand_front(userModel.getHand_front());
+        }
+        if (!isFromApp && userModel.getHand_reverse() != null) {
+            existUser.setHand_reverse(userModel.getHand_reverse());
+        }
         existUser.setUpdate_time(DateUtil.getCurDate());
-        return userDao.updateUser(userModel);
+        return userDao.updateUser(existUser);
     }
 
     public boolean addUser(UserModel userModel) {
         return userDao.addUser(userModel);
+    }
+
+    public UserModel getUserInfoByLoginId(String login_id) {
+        return userDao.getUserInfoByLoginId(login_id);
     }
 }

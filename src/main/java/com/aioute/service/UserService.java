@@ -11,4 +11,6 @@ public interface UserService {
     public boolean updateUser(UserModel userModel,boolean isFromApp);
 
     public boolean addUser(UserModel userModel);
+
+    public UserModel getUserInfoByLoginId(String login_id);
 }

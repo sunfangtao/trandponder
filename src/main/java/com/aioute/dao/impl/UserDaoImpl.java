@@ -41,6 +41,9 @@ public class UserDaoImpl implements UserDao {
                 userModel.setSex(rs.getString("sex"));
                 userModel.setName(rs.getString("name"));
                 userModel.setPhoto(rs.getString("photo"));
+                userModel.setHand_front(rs.getString("hand_front"));
+                userModel.setHand_reverse(rs.getString("hand_reverse"));
+                userModel.setVerify_status(rs.getInt("verify_status"));
                 break;
             }
         } catch (Exception e) {
@@ -68,8 +71,8 @@ public class UserDaoImpl implements UserDao {
         PreparedStatement ps = null;
 
         StringBuffer sb = new StringBuffer();
-        sb.append("update app_user set password=?,email=?,sex=?,name=?,push_id=?,login_time=?,login_id=?,update_time=? where id=?");
-
+        sb.append("update app_user set password=?,email=?,sex=?,name=?,push_id=?,login_time=?,login_id=?" +
+                ",update_time=?,photo=?,hand_front=?,hand_reverse=?,verify_status=? where id=?");
         try {
             con = sqlConnectionFactory.getConnection();
             ps = con.prepareStatement(sb.toString());
@@ -81,7 +84,11 @@ public class UserDaoImpl implements UserDao {
             ps.setString(6, userModel.getLogin_time());
             ps.setString(7, userModel.getLogin_id());
             ps.setString(8, userModel.getUpdate_time());
-            ps.setString(9, userModel.getId());
+            ps.setString(9, userModel.getPhoto());
+            ps.setString(10, userModel.getHand_front());
+            ps.setString(11, userModel.getHand_reverse());
+            ps.setInt(12, userModel.getVerify_status());
+            ps.setString(13, userModel.getId());
             int result = ps.executeUpdate();
             if (result > 0) {
                 return true;
@@ -119,5 +126,11 @@ public class UserDaoImpl implements UserDao {
             sqlConnectionFactory.closeConnetion(con, ps, rs);
         }
         return false;
+    }
+
+    public UserModel getUserInfoByLoginId(String login_id) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("select * from app_user where login_id=?");
+        return getUserBySql(sb.toString(), login_id);
     }
 }

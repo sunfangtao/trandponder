@@ -1,10 +1,10 @@
 package com.aioute.shiro.credentials;
 
+import com.aioute.shiro.UserNamePasswordToken;
 import com.aioute.shiro.password.PasswordHelper;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SaltedAuthenticationInfo;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +22,11 @@ public class RetryLimitHashedCredentialsMatcher extends HashedCredentialsMatcher
 
         if (info instanceof SaltedAuthenticationInfo) {
             ByteSource salt = ((SaltedAuthenticationInfo) info).getCredentialsSalt();
-            if (token instanceof UsernamePasswordToken) {
-                UsernamePasswordToken token2 = (UsernamePasswordToken) token;
+            if (token instanceof UserNamePasswordToken) {
+                UserNamePasswordToken token2 = (UserNamePasswordToken) token;
+                if (token2.isThirdLogin()) {
+                    return true;
+                }
                 String loginPassword = passwordHelper.encryptPassword(new String(salt.getBytes()),
                         new String(token2.getPassword()));
                 if (loginPassword.substring(32).equals(info.getCredentials())) {
@@ -31,7 +34,6 @@ public class RetryLimitHashedCredentialsMatcher extends HashedCredentialsMatcher
                 }
             }
         }
-
         return false;
     }
 }
