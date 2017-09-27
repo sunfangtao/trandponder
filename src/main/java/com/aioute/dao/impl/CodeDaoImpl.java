@@ -3,6 +3,7 @@ package com.aioute.dao.impl;
 import com.aioute.dao.CodeDao;
 import com.aioute.db.SqlConnectionFactory;
 import com.aioute.model.CodeModel;
+import com.aioute.util.DateUtil;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -104,5 +105,21 @@ public class CodeDaoImpl implements CodeDao {
             sqlConnectionFactory.closeConnetion(con, ps, rs);
         }
         return codeModel;
+    }
+
+    public String verifyCodeByPhone(String phone, String code) {
+        CodeModel codeModel = getCodeByPhone(phone);
+        if (codeModel != null
+                && (DateUtil.getTime(codeModel.getCreate_date()) - DateUtil.getTime(codeModel.getCreate_date())) < codeModel.getDuration() * 1000 * 60) {
+            if (code.equals(codeModel.getCode())) {
+                return null;
+            } else {
+                return "验证码错误!";
+            }
+        } else if (codeModel == null) {
+            return "请先获取验证码！";
+        } else {
+            return "验证码过期，请重新获取！";
+        }
     }
 }

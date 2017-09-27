@@ -2,7 +2,7 @@ package com.aioute.dao.impl;
 
 import com.aioute.dao.UserDao;
 import com.aioute.db.SqlConnectionFactory;
-import com.aioute.model.UserModel;
+import com.aioute.model.AppUserModel;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -16,12 +16,12 @@ public class UserDaoImpl implements UserDao {
     @Resource
     private SqlConnectionFactory sqlConnectionFactory;
 
-    private UserModel getUserBySql(String sql, String key) {
+    private AppUserModel getUserBySql(String sql, String key) {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        UserModel userModel = null;
+        AppUserModel userModel = null;
 
         try {
             con = sqlConnectionFactory.getConnection();
@@ -30,7 +30,7 @@ public class UserDaoImpl implements UserDao {
 
             rs = ps.executeQuery();
             while (rs.next()) {
-                userModel = new UserModel();
+                userModel = new AppUserModel();
                 userModel.setPassword(rs.getString("password"));
                 userModel.setId(rs.getString("id"));
                 userModel.setLogin_name(rs.getString("login_name"));
@@ -54,19 +54,19 @@ public class UserDaoImpl implements UserDao {
         return userModel;
     }
 
-    public UserModel getUserInfoById(String userId) {
+    public AppUserModel getUserInfoById(String userId) {
         StringBuffer sb = new StringBuffer();
         sb.append("select * from app_user where id=?");
         return getUserBySql(sb.toString(), userId);
     }
 
-    public UserModel getUserInfoByPhone(String phone) {
+    public AppUserModel getUserInfoByPhone(String phone) {
         StringBuffer sb = new StringBuffer();
         sb.append("select * from app_user where login_name=?");
         return getUserBySql(sb.toString(), phone);
     }
 
-    public boolean updateUser(UserModel userModel) {
+    public boolean updateUser(AppUserModel userModel) {
         Connection con = null;
         PreparedStatement ps = null;
 
@@ -101,7 +101,7 @@ public class UserDaoImpl implements UserDao {
         return false;
     }
 
-    public boolean addUser(UserModel userModel) {
+    public boolean addUser(AppUserModel userModel) {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -128,7 +128,7 @@ public class UserDaoImpl implements UserDao {
         return false;
     }
 
-    public UserModel getUserInfoByLoginId(String login_id) {
+    public AppUserModel getUserInfoByLoginId(String login_id) {
         StringBuffer sb = new StringBuffer();
         sb.append("select * from app_user where login_id=?");
         return getUserBySql(sb.toString(), login_id);

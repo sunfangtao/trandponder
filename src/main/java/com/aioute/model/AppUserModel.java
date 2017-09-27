@@ -1,6 +1,6 @@
 package com.aioute.model;
 
-public class UserModel {
+public class AppUserModel {
 
     private String id; // '编号'
     private String login_name;// '登录名称（手机号）'

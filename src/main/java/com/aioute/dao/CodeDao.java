@@ -9,4 +9,6 @@ public interface CodeDao {
     public boolean updateCode(CodeModel codeModel);
 
     public CodeModel getCodeByPhone(String phone);
+
+    public String verifyCodeByPhone(String phone, String code);
 }

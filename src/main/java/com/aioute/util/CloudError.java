@@ -50,4 +50,24 @@ public class CloudError {
         }
     }
 
+    /**
+     * 排序的类型
+     */
+    public enum SortEnum {
+        DISTANCE("distance"),
+        PRICE("price"),
+        CREATE_TIME("createTime"),
+        PRICE_DESC("priceDesc"),
+        PRICE_ASC("priceAsc");
+        private String value;
+
+        SortEnum(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
 }

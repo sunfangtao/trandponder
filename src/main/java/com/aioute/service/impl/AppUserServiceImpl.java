@@ -1,29 +1,29 @@
 package com.aioute.service.impl;
 
 import com.aioute.dao.UserDao;
-import com.aioute.model.UserModel;
-import com.aioute.service.UserService;
+import com.aioute.model.AppUserModel;
+import com.aioute.service.AppUserService;
 import com.aioute.util.DateUtil;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 
 @Repository
-public class UserServiceImpl implements UserService {
+public class AppUserServiceImpl implements AppUserService {
 
     @Resource
     private UserDao userDao;
 
-    public UserModel getUserInfoById(String userId) {
+    public AppUserModel getUserInfoById(String userId) {
         return userDao.getUserInfoById(userId);
     }
 
-    public UserModel getUserInfoByPhone(String phone) {
+    public AppUserModel getUserInfoByPhone(String phone) {
         return userDao.getUserInfoByPhone(phone);
     }
 
-    public boolean updateUser(UserModel userModel, boolean isFromApp) {
-        UserModel existUser = userDao.getUserInfoById(userModel.getId());
+    public boolean updateUser(AppUserModel userModel, boolean isFromApp) {
+        AppUserModel existUser = userDao.getUserInfoById(userModel.getId());
         if (userModel.getPassword() != null) {
             existUser.setPassword(userModel.getPassword());
         }
@@ -61,11 +61,11 @@ public class UserServiceImpl implements UserService {
         return userDao.updateUser(existUser);
     }
 
-    public boolean addUser(UserModel userModel) {
+    public boolean addUser(AppUserModel userModel) {
         return userDao.addUser(userModel);
     }
 
-    public UserModel getUserInfoByLoginId(String login_id) {
+    public AppUserModel getUserInfoByLoginId(String login_id) {
         return userDao.getUserInfoByLoginId(login_id);
     }
 }

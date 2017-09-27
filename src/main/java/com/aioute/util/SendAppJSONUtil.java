@@ -39,9 +39,11 @@ public class SendAppJSONUtil {
     public static String getPageJsonString(int page, int pageSize, int count, Object object) {
 
         PageJson data = new PageJson();
-        if (page >= 0 && pageSize > 0 && count > 0) {
+        if (page >= 0 && pageSize > 0) {
             data.page = page;
             data.pageSize = pageSize;
+        }
+        if (count > 0) {
             data.count = count;
         }
         data.array = object;
@@ -76,6 +78,8 @@ public class SendAppJSONUtil {
             Json json = new Json();
             if (object instanceof Map || object instanceof List) {
                 json.array = object;
+            } else if (object instanceof String) {
+                returnJson.message = (String) object;
             } else {
                 json.info = object;
             }

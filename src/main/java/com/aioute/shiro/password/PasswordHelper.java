@@ -11,6 +11,9 @@ public class PasswordHelper {
 
 	private RandomNumberGenerator randomNumberGenerator = new SecureRandomNumberGenerator();
 
+	public static void main(String[] args) {
+		System.out.println(new PasswordHelper().encryptPassword(null,"123456"));
+	}
 	public String encryptPassword(String salt, String password) {
 
 		if (salt == null) {

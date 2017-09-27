@@ -13,7 +13,7 @@ public class VersionServiceImpl implements VersionService {
     @Resource
     private VersionDao versionDao;
 
-    public VersionModel getVersionInfo(String type) {
-        return versionDao.getVersionInfo(type);
+    public VersionModel getVersionInfo() {
+        return versionDao.getVersionInfo();
     }
 }

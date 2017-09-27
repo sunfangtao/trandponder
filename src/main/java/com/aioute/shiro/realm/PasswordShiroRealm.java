@@ -6,8 +6,10 @@
  */
 package com.aioute.shiro.realm;
 
-import com.aioute.model.UserModel;
-import com.aioute.service.UserService;
+import com.aioute.model.AppUserModel;
+import com.aioute.model.CodeModel;
+import com.aioute.service.AppUserService;
+import com.aioute.service.CodeService;
 import com.aioute.shiro.UserNamePasswordToken;
 import com.aioute.shiro.password.PasswordHelper;
 import com.aioute.util.DateUtil;
@@ -40,7 +42,9 @@ public class PasswordShiroRealm extends AuthorizingRealm {
     @Autowired
     private SessionManager sessionManager;
     @Resource
-    private UserService userService;
+    private AppUserService userService;
+    @Resource
+    private CodeService codeService;
     @SuppressWarnings("unused")
     @Autowired
     private PasswordHelper passwordHelper;
@@ -76,15 +80,29 @@ public class PasswordShiroRealm extends AuthorizingRealm {
         if (!StringUtils.hasText(username)) {
             return null;
         }
-        UserModel user = userService.getUserInfoByPhone(username);
+        AppUserModel user = userService.getUserInfoByPhone(username);
         if (user == null) {
             // 用户没有注册，自动完成注册
-            user = new UserModel();
-            user.setId(UUID.randomUUID().toString());
-            user.setLogin_name(username);
-            user.setPassword(passwordHelper.encryptPassword(null, new String(token.getPassword())));
-            user.setCreate_time(DateUtil.getCurDate());
-            userService.addUser(user);
+            // 先验证验证码(密码)
+            CodeModel codeModel = codeService.getCodeByPhone(username);
+            if (codeModel == null) {
+                return null;
+            }
+            long range = (DateUtil.getTime(DateUtil.getCurDate()) - DateUtil.getTime(codeModel.getCreate_date())) / 60 / 1000;
+            if (range > codeModel.getDuration()) {
+                return null;
+            }
+
+            String password = new String(token.getPassword());
+            if (password.equals(codeModel.getCode())) {
+                user = new AppUserModel();
+                user.setId(UUID.randomUUID().toString());
+                user.setLogin_name(username);
+                user.setPassword(passwordHelper.encryptPassword(null, password));
+                user.setCreate_time(DateUtil.getCurDate());
+                userService.addUser(user);
+            }
+
         }
         String password = user.getPassword();
         if (!StringUtils.hasText(password)) {
@@ -95,4 +113,5 @@ public class PasswordShiroRealm extends AuthorizingRealm {
         return new SimpleAuthenticationInfo(username, password.substring(32), ByteSource.Util.bytes(user
                 .getPassword().substring(0, 32)), getName());
     }
+
 }

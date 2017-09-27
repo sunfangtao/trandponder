@@ -1,7 +1,7 @@
 package com.aioute.controller;
 
-import com.aioute.model.UserModel;
-import com.aioute.service.UserService;
+import com.aioute.model.AppUserModel;
+import com.aioute.service.AppUserService;
 import com.aioute.shiro.UserNamePasswordToken;
 import com.aioute.util.CloudError;
 import com.aioute.util.DateUtil;
@@ -26,7 +26,7 @@ public class LoginController {
     private Logger logger = Logger.getLogger(LoginController.class);
 
     @Resource
-    private UserService userService;
+    private AppUserService userService;
 
     /**
      * 用户登录
@@ -50,7 +50,7 @@ public class LoginController {
                     logger.info("用户请求未认证");
                     resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NOTLOGIN.getValue(), "请先登录！");
                 } else {
-                    UserModel user = userService.getUserInfoByPhone(phone);
+                    AppUserModel user = userService.getUserInfoByPhone(phone);
                     resultJson = loginSuccess(user);
                     logger.info("用户开始登录 ：" + resultJson);
                 }
@@ -58,9 +58,9 @@ public class LoginController {
                 // 失败
                 logger.info("用户登录失败 " + errorClassName);
                 if (errorClassName.contains("IncorrectCredentialsException")) {
-                    resultJson = SendAppJSONUtil.getFailResultObject("", "密码错误！");
+                    resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.PASSWORDERROR.getValue(), "密码错误！");
                 } else if (errorClassName.contains("UnknownAccountException")) {
-                    resultJson = SendAppJSONUtil.getFailResultObject("", "用户不存在！");
+                    resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NOACCOUNT.getValue(), "用户不存在！");
                 } else {
                     resultJson = SendAppJSONUtil.getFailResultObject("", "登录失败！");
                 }
@@ -85,7 +85,7 @@ public class LoginController {
             String login_id = req.getParameter("login_id");
 
             if (StringUtils.hasText(login_id)) {
-                UserModel userModel = userService.getUserInfoByLoginId(login_id);
+                AppUserModel userModel = userService.getUserInfoByLoginId(login_id);
                 if (userModel != null) {
                     // 模拟登录
                     UserNamePasswordToken token = new UserNamePasswordToken(userModel.getLogin_name(), userModel.getPassword(), true);
@@ -109,7 +109,7 @@ public class LoginController {
         }
     }
 
-    private String loginSuccess(UserModel userModel) {
+    private String loginSuccess(AppUserModel userModel) {
         userModel.setLogin_time(DateUtil.getCurDate());
 
         if (userModel.getDel_flag() > 0) {
