@@ -32,7 +32,7 @@ public class PlatUserDaoImpl implements PlatUserDao {
 
         PlatUserModel platUserModel = null;
         StringBuffer sb = new StringBuffer();
-        sb.append("select * from sys_user where id=?");
+        sb.append("select * from sys_user where id = ? and user_type != '0'");
 
         try {
             con = sqlConnectionFactory.getConnection();
@@ -82,6 +82,7 @@ public class PlatUserDaoImpl implements PlatUserDao {
         } else {
             sb.append(" where u.del_flag = 0");
         }
+        sb.append(" and u.user_type != '0'");
         // 排序
         if (StringUtils.hasText(serverId)) {
             if (sortType.equals(CloudError.SortEnum.DISTANCE.getValue())) {

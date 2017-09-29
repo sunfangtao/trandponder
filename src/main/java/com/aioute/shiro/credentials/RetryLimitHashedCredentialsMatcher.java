@@ -1,7 +1,7 @@
 package com.aioute.shiro.credentials;
 
 import com.aioute.shiro.UserNamePasswordToken;
-import com.aioute.shiro.password.PasswordHelper;
+import com.aioute.shiro.password.DefaultPasswordEncoder;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SaltedAuthenticationInfo;
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class RetryLimitHashedCredentialsMatcher extends HashedCredentialsMatcher {
 
     @Autowired
-    private PasswordHelper passwordHelper;
+    private DefaultPasswordEncoder defaultPasswordEncoder;
 
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
@@ -27,9 +27,8 @@ public class RetryLimitHashedCredentialsMatcher extends HashedCredentialsMatcher
                 if (token2.isThirdLogin()) {
                     return true;
                 }
-                String loginPassword = passwordHelper.encryptPassword(new String(salt.getBytes()),
-                        new String(token2.getPassword()));
-                if (loginPassword.substring(32).equals(info.getCredentials())) {
+                String loginPassword = defaultPasswordEncoder.encode(new String(token2.getPassword()));
+                if (loginPassword.equals(info.getCredentials())) {
                     return true;
                 }
             }

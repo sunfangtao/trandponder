@@ -8,7 +8,7 @@ public class AppointmentModel {
     private String createDate;//'预约时间',
     private String status;//'状态：0预约，1接受，2取消',
     private String serviceId;// '预约服务id',
-    private String type;//'服务类型：洗车、试驾等',
+    private String serverType;//'服务类型：洗车、试驾等',
     private String username;// '用户姓名',
     private String phone;// '预约人手机号',
     private String appointmentTime;// '预约时间',
@@ -63,12 +63,12 @@ public class AppointmentModel {
         this.serviceId = serviceId;
     }
 
-    public String getType() {
-        return type;
+    public String getServerType() {
+        return serverType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setServerType(String serverType) {
+        this.serverType = serverType;
     }
 
     public String getUsername() {

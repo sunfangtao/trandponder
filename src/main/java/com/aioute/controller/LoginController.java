@@ -128,7 +128,6 @@ public class LoginController {
             String resultJson = null;
             String phone = req.getParameter("phone");
             String code = req.getParameter("code");
-
             // 模拟登录
             UserNamePasswordToken token = new UserNamePasswordToken(phone, code, false);
             try {

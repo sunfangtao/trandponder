@@ -19,7 +19,7 @@ public class SellCarServiceImpl implements SellCarService {
     public boolean addSell(SellCarModel sellCarModel) {
         sellCarModel.setCreatedate(DateUtil.getCurDate());
         sellCarModel.setUserId(SecurityUtil.getUserId());
-        sellCarModel.setType("0");
+        sellCarModel.setUserType("0");
         return sellCarDao.addSell(sellCarModel);
     }
 

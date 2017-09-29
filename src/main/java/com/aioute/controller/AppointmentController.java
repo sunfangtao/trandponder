@@ -31,13 +31,15 @@ public class AppointmentController {
      */
     @RequestMapping("add")
     public void add(AppointmentModel appointmentModel, HttpServletResponse res) {
+
+        String returnJson = null;
+        if (appointmentService.addAppointment(appointmentModel)) {
+            returnJson = SendAppJSONUtil.getNormalString("添加成功!");
+        } else {
+            returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "添加失败!");
+        }
+        int i = 5/0;
         try {
-            String returnJson = null;
-            if (appointmentService.addAppointment(appointmentModel)) {
-                returnJson = SendAppJSONUtil.getNormalString("添加成功!");
-            } else {
-                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "添加失败!");
-            }
             res.getWriter().write(returnJson);
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,7 +91,7 @@ public class AppointmentController {
             String status = req.getParameter("status");
 
             AppointmentModel appointmentModel = new AppointmentModel();
-            appointmentModel.setType(type);
+            appointmentModel.setServerType(type);
             appointmentModel.setStatus(status);
             List<AppointmentModel> appointmentList = appointmentService.queryList(appointmentModel, page, pageSize);
             if (appointmentList == null || appointmentList.size() == 0) {

@@ -15,4 +15,6 @@ public interface PermissionService {
     public Permission getUrlByType(String type);
 
     public List<Permission> getAllAppPermission();
+
+    public void update();
 }

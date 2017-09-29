@@ -25,7 +25,8 @@ public class PermissionDaoImpl implements PermissionDao {
 
         Permission permission = new Permission();
         StringBuffer sb = new StringBuffer();
-        sb.append("select url from app_permission where type = ?");
+        sb.append("select p.*,s.address from app_permission p,sub_server s where p.type = ?");
+        sb.append(" and p.server_id = s.id");
 
         try {
             con = sqlConnectionFactory.getConnection();
@@ -35,7 +36,8 @@ public class PermissionDaoImpl implements PermissionDao {
             while (rs.next()) {
                 permission.setUrl(rs.getString("url"));
                 permission.setType(rs.getString("type"));
-                permission.setIs_user(rs.getInt("is_user") == 0 ? true : false);
+                permission.setAddress(rs.getString("address"));
+                permission.setIs_user(rs.getInt("is_user") == 0 ? false : true);
                 return permission;
             }
         } catch (Exception e) {
@@ -46,7 +48,7 @@ public class PermissionDaoImpl implements PermissionDao {
         return permission;
     }
 
-    public List<Permission> getAllAppPermission(){
+    public List<Permission> getAllAppPermission() {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;

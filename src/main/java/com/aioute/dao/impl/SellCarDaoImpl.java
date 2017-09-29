@@ -43,7 +43,7 @@ public class SellCarDaoImpl implements SellCarDao {
             ps.setString(9, sellCarModel.getLocation());
             ps.setString(10, sellCarModel.getGearbox());
             ps.setString(11, sellCarModel.getDischargeStandard());
-            ps.setString(12, sellCarModel.getType());
+            ps.setString(12, sellCarModel.getUserType());
             ps.setString(13, sellCarModel.getUserId());
             ps.setString(14, sellCarModel.getPhoto());
             ps.setString(15, sellCarModel.getCreatedate());
@@ -89,7 +89,7 @@ public class SellCarDaoImpl implements SellCarDao {
                 sellCarModel.setLocation(rs.getString("location"));
                 sellCarModel.setGearbox(rs.getString("gearbox"));
                 sellCarModel.setDischargeStandard(rs.getString("discharge_standard"));
-                sellCarModel.setType(rs.getString("type"));
+                sellCarModel.setUserType(rs.getString("type"));
                 sellCarModel.setUserId(rs.getString("user_id"));
                 sellCarModel.setPhoto(rs.getString("photo"));
                 sellCarModel.setCreatedate(rs.getString("createdate"));
@@ -104,6 +104,10 @@ public class SellCarDaoImpl implements SellCarDao {
         return sellCarModel;
     }
 
+    public static void main(String[] args) {
+        System.out.println("3_".split("_").length);
+    }
+
     public List<SellCarModel> queryList(String sortType, SellCarModel sellCarModel, String priceRange, int page, int pageSize) {
         Connection con = null;
         PreparedStatement ps = null;
@@ -112,8 +116,8 @@ public class SellCarDaoImpl implements SellCarDao {
         List<SellCarModel> sellCarModelList = new ArrayList<SellCarModel>();
         StringBuffer sb = new StringBuffer();
         sb.append("select * from sell_car where 1 = 1");
-        if (StringUtils.hasText(sellCarModel.getType())) {
-            if ("0".equals(sellCarModel.getType())) {
+        if (StringUtils.hasText(sellCarModel.getUserType())) {
+            if ("0".equals(sellCarModel.getUserType())) {
                 sb.append(" and type = '0'");
             } else {
                 sb.append(" and type = '1'");
@@ -127,7 +131,7 @@ public class SellCarDaoImpl implements SellCarDao {
             if ("".equals(prices[0])) {
                 // 小于
                 sb.append(" and sell_price <= ").append(prices[1]);
-            } else if ("".equals(prices[1])) {
+            } else if (prices.length == 1) {
                 // 大于
                 sb.append(" and sell_price >= ").append(prices[0]);
             } else {
@@ -169,7 +173,7 @@ public class SellCarDaoImpl implements SellCarDao {
                 sellCarModel.setLocation(rs.getString("location"));
                 sellCarModel.setGearbox(rs.getString("gearbox"));
                 sellCarModel.setDischargeStandard(rs.getString("discharge_standard"));
-                sellCarModel.setType(rs.getString("type"));
+                sellCarModel.setUserType(rs.getString("type"));
                 sellCarModel.setUserId(rs.getString("user_id"));
                 sellCarModel.setPhoto(rs.getString("photo"));
                 sellCarModel.setCreatedate(rs.getString("createdate"));

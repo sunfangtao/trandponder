@@ -19,14 +19,22 @@ public class PermissionServiceImpl implements PermissionService {
     private PermissionDao permissionDao;
 
     public Permission getUrlByType(String type) {
-        Permission permission = urlMap.get(type);
-        if (permission != null) {
-            return permission;
+        synchronized (PermissionServiceImpl.class) {
+            Permission permission = urlMap.get(type);
+            if (permission != null) {
+                return permission;
+            }
         }
         return permissionDao.getUrlByType(type);
     }
 
-    public List<Permission> getAllAppPermission(){
+    public List<Permission> getAllAppPermission() {
         return permissionDao.getAllAppPermission();
+    }
+
+    public void update() {
+        synchronized (PermissionServiceImpl.class) {
+            urlMap.clear();
+        }
     }
 }

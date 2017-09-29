@@ -25,19 +25,19 @@ public class AppointmentDaoImpl implements AppointmentDao {
     public boolean addAppointment(AppointmentModel appointmentModel) {
         StringBuffer sb = new StringBuffer();
         sb.append("insert into bespeak (id,user_id,adminid,createDate,status,serviceid,type,username" +
-                ",phone,appointmenttime,content,updateDate) values (");
-        sb.append(appointmentModel.getId()).append(",");
-        sb.append(appointmentModel.getUser_id()).append(",");
-        sb.append(appointmentModel.getAdminId()).append(",");
-        sb.append(appointmentModel.getCreateDate()).append(",");
-        sb.append(appointmentModel.getStatus()).append(",");
-        sb.append(appointmentModel.getServiceId()).append(",");
-        sb.append(appointmentModel.getType()).append(",");
-        sb.append(appointmentModel.getUsername()).append(",");
-        sb.append(appointmentModel.getPhone()).append(",");
-        sb.append(appointmentModel.getAppointmentTime()).append(",");
-        sb.append(appointmentModel.getContent()).append(",");
-        sb.append(appointmentModel.getUpdateDate()).append(")");
+                ",phone,appointmenttime,content,updateDate) values ('");
+        sb.append(appointmentModel.getId()).append("','");
+        sb.append(appointmentModel.getUser_id()).append("','");
+        sb.append(appointmentModel.getAdminId()).append("','");
+        sb.append(appointmentModel.getCreateDate()).append("','");
+        sb.append(appointmentModel.getStatus()).append("','");
+        sb.append(appointmentModel.getServiceId()).append("','");
+        sb.append(appointmentModel.getServerType()).append("','");
+        sb.append(appointmentModel.getUsername()).append("','");
+        sb.append(appointmentModel.getPhone()).append("','");
+        sb.append(appointmentModel.getAppointmentTime()).append("','");
+        sb.append(appointmentModel.getContent()).append("','");
+        sb.append(appointmentModel.getUpdateDate()).append("')");
 
         return sqlUtil.getUpdateResult(sb.toString());
     }
@@ -75,7 +75,7 @@ public class AppointmentDaoImpl implements AppointmentDao {
 
         StringBuffer sb = new StringBuffer();
         sb.append("select * from bespeak where userId = ?");
-        if (StringUtils.hasText(appointmentModel.getType())) {
+        if (StringUtils.hasText(appointmentModel.getServerType())) {
             sb.append(" and type = ?");
         }
         if (StringUtils.hasText(appointmentModel.getStatus())) {
@@ -91,8 +91,8 @@ public class AppointmentDaoImpl implements AppointmentDao {
             con = sqlConnectionFactory.getConnection();
             ps = con.prepareStatement(sb.toString());
             ps.setString(1, appointmentModel.getUser_id());
-            if (StringUtils.hasText(appointmentModel.getType())) {
-                ps.setString(2, appointmentModel.getType());
+            if (StringUtils.hasText(appointmentModel.getServerType())) {
+                ps.setString(2, appointmentModel.getServerType());
                 if (StringUtils.hasText(appointmentModel.getStatus())) {
                     ps.setString(3, appointmentModel.getStatus());
                 }
@@ -109,7 +109,7 @@ public class AppointmentDaoImpl implements AppointmentDao {
                 tempAppointmentModel.setCreateDate(rs.getString("createDate"));
                 tempAppointmentModel.setStatus(rs.getString("status"));
                 tempAppointmentModel.setServiceId(rs.getString("serviceid"));
-                tempAppointmentModel.setType(rs.getString("type"));
+                tempAppointmentModel.setServerType(rs.getString("type"));
                 tempAppointmentModel.setUsername(rs.getString("username"));
                 tempAppointmentModel.setPhone(rs.getString("phone"));
                 tempAppointmentModel.setAppointmentTime(rs.getString("appointmenttime"));

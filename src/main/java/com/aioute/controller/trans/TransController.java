@@ -21,8 +21,6 @@ import java.util.List;
 @RequestMapping("trans")
 public class TransController {
 
-    private static final String IP_PORT = "http://10.10.29.249:8099/";
-
     @Resource
     private PermissionService permissionService;
 
@@ -47,14 +45,10 @@ public class TransController {
                             // 用户没有登录
                             returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NOTLOGIN.getValue(), "请先登录!");
                         } else {
-                            new HttpClient(req, res).send(IP_PORT + permission.getUrl());
+                            returnJson = new HttpClient(req, res).sendByGet(permission.getAddress() + permission.getUrl(), SecurityUtil.getUserId());
                         }
                     } else {
-                        new HttpClient(req, res).send(IP_PORT + permission.getUrl());
-                    }
-                    if (!permission.isIs_user() || (permission.isIs_user() && SecurityUtils.getSubject().getPrincipal() != null)) {
-                        new HttpClient(req, res).send(IP_PORT + permission.getUrl());
-                        return;
+                        returnJson = new HttpClient(req, res).sendByGet(permission.getAddress() + permission.getUrl(), null);
                     }
                 }
             } else {
@@ -87,6 +81,21 @@ public class TransController {
                 returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请添加文件!");
             }
             res.getWriter().write(returnJson);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * app更新
+     *
+     * @param res
+     */
+    @RequestMapping("update")
+    public void update(HttpServletResponse res) {
+        try {
+            permissionService.update();
+            res.getWriter().write(SendAppJSONUtil.getNormalString("清除缓存成功!"));
         } catch (Exception e) {
             e.printStackTrace();
         }

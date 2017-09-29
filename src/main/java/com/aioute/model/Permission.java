@@ -6,6 +6,7 @@ public class Permission {
     private String remarks;//'备注信息',
     private String url;//'链接地址',
     private String type;//'链接映射标识'
+    private String address;
 
     @Override
     public boolean equals(Object obj) {
@@ -56,5 +57,13 @@ public class Permission {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

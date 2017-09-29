@@ -70,4 +70,21 @@ public class CloudError {
         }
     }
 
+    /**
+     * 收藏的类型
+     */
+    public enum FavouriteEnum {
+        NEW_CAR("newCar"),
+        SELL_CAR("sellCar"),
+        PLAT_USER("user");
+        private String value;
+
+        FavouriteEnum(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
 }

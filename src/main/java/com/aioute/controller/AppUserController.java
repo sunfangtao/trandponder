@@ -3,7 +3,7 @@ package com.aioute.controller;
 import com.aioute.model.AppUserModel;
 import com.aioute.service.AppUserService;
 import com.aioute.service.CodeService;
-import com.aioute.shiro.password.PasswordHelper;
+import com.aioute.shiro.password.DefaultPasswordEncoder;
 import com.aioute.util.CloudError;
 import com.aioute.util.DateUtil;
 import com.aioute.util.SecurityUtil;
@@ -29,7 +29,7 @@ public class AppUserController {
     @Resource
     private CodeService codeService;
     @Resource
-    private PasswordHelper passwordHelper;
+    private DefaultPasswordEncoder defaultPasswordEncoder;
 
     /**
      * 更新用户的信息
@@ -144,7 +144,7 @@ public class AppUserController {
                     changeUser.setId(UUID.randomUUID().toString());
                     changeUser.setLogin_id(login_id);
                     changeUser.setLogin_name(phone);
-                    changeUser.setPassword(passwordHelper.encryptPassword(null, code));
+                    changeUser.setPassword(defaultPasswordEncoder.encode(code));
                     changeUser.setCreate_time(DateUtil.getCurDate());
                     if (userService.addUser(changeUser)) {
                         res.sendRedirect("/loginController/thirdLogin?login_id=" + login_id);

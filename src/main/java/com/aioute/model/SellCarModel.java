@@ -14,7 +14,7 @@ public class SellCarModel {
     private String location;          // 所在地区
     private String gearbox;           // 变速箱
     private String dischargeStandard;// 排放标准
-    private String type;               // 发布者类型（0：个人；1：组织）
+    private String userType;               // 发布者类型（0：个人；1：组织）
     private String photo;             //  展示图
     private String remark;            //  备注说明
     private String createdate;        //  创建时间
@@ -117,12 +117,12 @@ public class SellCarModel {
         this.dischargeStandard = dischargeStandard;
     }
 
-    public String getType() {
-        return type;
+    public String getUserType() {
+        return userType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 
     public String getPhoto() {

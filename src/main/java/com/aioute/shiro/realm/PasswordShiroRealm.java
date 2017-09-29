@@ -11,7 +11,7 @@ import com.aioute.model.CodeModel;
 import com.aioute.service.AppUserService;
 import com.aioute.service.CodeService;
 import com.aioute.shiro.UserNamePasswordToken;
-import com.aioute.shiro.password.PasswordHelper;
+import com.aioute.shiro.password.DefaultPasswordEncoder;
 import com.aioute.util.DateUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -26,7 +26,6 @@ import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.support.DefaultSubjectContext;
-import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.StringUtils;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,7 @@ public class PasswordShiroRealm extends AuthorizingRealm {
     private CodeService codeService;
     @SuppressWarnings("unused")
     @Autowired
-    private PasswordHelper passwordHelper;
+    private DefaultPasswordEncoder defaultPasswordEncoder;
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
@@ -98,7 +97,7 @@ public class PasswordShiroRealm extends AuthorizingRealm {
                 user = new AppUserModel();
                 user.setId(UUID.randomUUID().toString());
                 user.setLogin_name(username);
-                user.setPassword(passwordHelper.encryptPassword(null, password));
+                user.setPassword(defaultPasswordEncoder.encode(password));
                 user.setCreate_time(DateUtil.getCurDate());
                 userService.addUser(user);
             }
@@ -110,8 +109,7 @@ public class PasswordShiroRealm extends AuthorizingRealm {
         }
 
         SecurityUtils.getSubject().getSession().setAttribute("userId", user.getId());
-        return new SimpleAuthenticationInfo(username, password.substring(32), ByteSource.Util.bytes(user
-                .getPassword().substring(0, 32)), getName());
+        return new SimpleAuthenticationInfo(username, password, getName());
     }
 
 }
