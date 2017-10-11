@@ -5,8 +5,8 @@ import com.aioute.service.CodeService;
 import com.aioute.service.PicService;
 import com.aioute.service.SellCarService;
 import com.aioute.util.CloudError;
-import com.aioute.util.PagingUtil;
-import com.aioute.util.SendAppJSONUtil;
+import com.sft.util.PagingUtil;
+import com.sft.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ public class SellCarController {
     private CodeService codeService;
 
     @RequestMapping("add")
-    public void addSellCar(List<String> picList, SellCarModel sellCarModel, HttpServletRequest req, HttpServletResponse res) {
+    public void addSellCar(ArrayList<String> picList, SellCarModel sellCarModel, HttpServletRequest req, HttpServletResponse res) {
         try {
             String resultJson = null;
             // 验证手机验证码

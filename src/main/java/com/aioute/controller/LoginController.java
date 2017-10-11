@@ -4,9 +4,9 @@ import com.aioute.model.AppUserModel;
 import com.aioute.service.AppUserService;
 import com.aioute.shiro.UserNamePasswordToken;
 import com.aioute.util.CloudError;
-import com.aioute.util.DateUtil;
+import com.sft.util.DateUtil;
 import com.aioute.util.SecurityUtil;
-import com.aioute.util.SendAppJSONUtil;
+import com.sft.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -116,7 +116,7 @@ public class LoginController {
             // 用户被禁用
             return SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.PERMISSION.getValue(), "账号被禁用，无权登录");
         } else {
-            userService.updateUser(userModel, true);
+            userService.updateUser(userModel, false);
             userModel = SecurityUtil.handlerUser(userModel);
             return SendAppJSONUtil.getNormalString(userModel);
         }
@@ -135,6 +135,7 @@ public class LoginController {
                 resultJson = "用户开始登录";
                 logger.info("用户开始登录 ：");
             } catch (Exception e) {
+                resultJson = "用户登录失败";
                 e.printStackTrace();
             }
             res.getWriter().write(resultJson);

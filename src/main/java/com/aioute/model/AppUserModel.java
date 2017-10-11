@@ -19,6 +19,12 @@ public class AppUserModel {
     private String hand_reverse;// 身份证背面
     private String hand_front;// 身份证正面
     private int verify_status;// 认证状态
+    private String driveLicence; // 驾驶证*
+    private String driveLicenceReason;//
+    private String driveLicenceNotice;//
+    private int licenceStatus;
+    private String frontReason;// 原因
+    private String frontNotice;// 注意
 
     public String getId() {
         return id;
@@ -154,5 +160,53 @@ public class AppUserModel {
 
     public void setVerify_status(int verify_status) {
         this.verify_status = verify_status;
+    }
+
+    public String getDriveLicence() {
+        return driveLicence;
+    }
+
+    public void setDriveLicence(String driveLicence) {
+        this.driveLicence = driveLicence;
+    }
+
+    public String getDriveLicenceReason() {
+        return driveLicenceReason;
+    }
+
+    public void setDriveLicenceReason(String driveLicenceReason) {
+        this.driveLicenceReason = driveLicenceReason;
+    }
+
+    public String getDriveLicenceNotice() {
+        return driveLicenceNotice;
+    }
+
+    public void setDriveLicenceNotice(String driveLicenceNotice) {
+        this.driveLicenceNotice = driveLicenceNotice;
+    }
+
+    public int getLicenceStatus() {
+        return licenceStatus;
+    }
+
+    public void setLicenceStatus(int licenceStatus) {
+        this.licenceStatus = licenceStatus;
+    }
+
+    public String getFrontReason() {
+        return frontReason;
+    }
+
+    public void setFrontReason(String frontReason) {
+        this.frontReason = frontReason;
+    }
+
+    public String getFrontNotice() {
+        return frontNotice;
+    }
+
+    public void setFrontNotice(String frontNotice) {
+        this.frontNotice = frontNotice;
     }
 }

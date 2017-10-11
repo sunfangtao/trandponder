@@ -27,7 +27,7 @@ public class SellCarDaoImpl implements SellCarDao {
 
         StringBuffer sb = new StringBuffer();
         sb.append("insert into sell_car (id,mobile,mileage,price_tax,sell_price,brand,car_license,displacement,location,gearbox," +
-                "discharge_standard,type,user_id,photo,createdate,remark) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                "discharge_standard,type,user_id,photo,createdate,remark,frontImg,behindImg,sideImg) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
         try {
             con = sqlConnectionFactory.getConnection();
@@ -48,6 +48,9 @@ public class SellCarDaoImpl implements SellCarDao {
             ps.setString(14, sellCarModel.getPhoto());
             ps.setString(15, sellCarModel.getCreatedate());
             ps.setString(16, sellCarModel.getRemark());
+            ps.setString(17, sellCarModel.getFrontImg());
+            ps.setString(18, sellCarModel.getBehindImg());
+            ps.setString(19, sellCarModel.getSideImg());
 
             int result = ps.executeUpdate();
             if (result > 0) {
@@ -77,23 +80,7 @@ public class SellCarDaoImpl implements SellCarDao {
 
             rs = ps.executeQuery();
             while (rs.next()) {
-                sellCarModel = new SellCarModel();
-                sellCarModel.setId(rs.getString("id"));
-                sellCarModel.setMobile(rs.getString("mobile"));
-                sellCarModel.setMileage(rs.getString("mileage"));
-                sellCarModel.setPriceTax(rs.getDouble("price_tax"));
-                sellCarModel.setSellPrice(rs.getDouble("sell_price"));
-                sellCarModel.setBrand(rs.getString("brand"));
-                sellCarModel.setCarLicense(rs.getString("car_license"));
-                sellCarModel.setDisplacement(rs.getString("displacement"));
-                sellCarModel.setLocation(rs.getString("location"));
-                sellCarModel.setGearbox(rs.getString("gearbox"));
-                sellCarModel.setDischargeStandard(rs.getString("discharge_standard"));
-                sellCarModel.setUserType(rs.getString("type"));
-                sellCarModel.setUserId(rs.getString("user_id"));
-                sellCarModel.setPhoto(rs.getString("photo"));
-                sellCarModel.setCreatedate(rs.getString("createdate"));
-                sellCarModel.setRemark(rs.getString("remark"));
+                sellCarModel = setSellCarValue(rs);
                 break;
             }
         } catch (Exception e) {
@@ -102,10 +89,6 @@ public class SellCarDaoImpl implements SellCarDao {
             sqlConnectionFactory.closeConnetion(con, ps, rs);
         }
         return sellCarModel;
-    }
-
-    public static void main(String[] args) {
-        System.out.println("3_".split("_").length);
     }
 
     public List<SellCarModel> queryList(String sortType, SellCarModel sellCarModel, String priceRange, int page, int pageSize) {
@@ -161,25 +144,7 @@ public class SellCarDaoImpl implements SellCarDao {
 
             rs = ps.executeQuery();
             while (rs.next()) {
-                sellCarModel = new SellCarModel();
-                sellCarModel.setId(rs.getString("id"));
-                sellCarModel.setMobile(rs.getString("mobile"));
-                sellCarModel.setMileage(rs.getString("mileage"));
-                sellCarModel.setPriceTax(rs.getDouble("price_tax"));
-                sellCarModel.setSellPrice(rs.getDouble("sell_price"));
-                sellCarModel.setBrand(rs.getString("brand"));
-                sellCarModel.setCarLicense(rs.getString("car_license"));
-                sellCarModel.setDisplacement(rs.getString("displacement"));
-                sellCarModel.setLocation(rs.getString("location"));
-                sellCarModel.setGearbox(rs.getString("gearbox"));
-                sellCarModel.setDischargeStandard(rs.getString("discharge_standard"));
-                sellCarModel.setUserType(rs.getString("type"));
-                sellCarModel.setUserId(rs.getString("user_id"));
-                sellCarModel.setPhoto(rs.getString("photo"));
-                sellCarModel.setCreatedate(rs.getString("createdate"));
-                sellCarModel.setRemark(rs.getString("remark"));
-                sellCarModelList.add(sellCarModel);
-                break;
+                sellCarModelList.add(setSellCarValue(rs));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,5 +152,30 @@ public class SellCarDaoImpl implements SellCarDao {
             sqlConnectionFactory.closeConnetion(con, ps, rs);
         }
         return sellCarModelList;
+    }
+
+    private SellCarModel setSellCarValue(ResultSet rs) throws Exception {
+        SellCarModel sellCarModel = new SellCarModel();
+        sellCarModel.setId(rs.getString("id"));
+        sellCarModel.setMobile(rs.getString("mobile"));
+        sellCarModel.setMileage(rs.getString("mileage"));
+        sellCarModel.setPriceTax(rs.getDouble("price_tax"));
+        sellCarModel.setSellPrice(rs.getDouble("sell_price"));
+        sellCarModel.setBrand(rs.getString("brand"));
+        sellCarModel.setCarLicense(rs.getString("car_license"));
+        sellCarModel.setDisplacement(rs.getString("displacement"));
+        sellCarModel.setLocation(rs.getString("location"));
+        sellCarModel.setGearbox(rs.getString("gearbox"));
+        sellCarModel.setDischargeStandard(rs.getString("discharge_standard"));
+        sellCarModel.setUserType(rs.getString("type"));
+        sellCarModel.setUserId(rs.getString("user_id"));
+        sellCarModel.setPhoto(rs.getString("photo"));
+        sellCarModel.setCreatedate(rs.getString("createdate"));
+        sellCarModel.setRemark(rs.getString("remark"));
+        sellCarModel.setBehindImg(rs.getString("behindImg"));
+        sellCarModel.setFrontImg(rs.getString("frontImg"));
+        sellCarModel.setSideImg(rs.getString("sideImg"));
+
+        return sellCarModel;
     }
 }

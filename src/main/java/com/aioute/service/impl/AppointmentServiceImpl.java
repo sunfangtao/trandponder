@@ -3,7 +3,7 @@ package com.aioute.service.impl;
 import com.aioute.dao.AppointmentDao;
 import com.aioute.model.AppointmentModel;
 import com.aioute.service.AppointmentService;
-import com.aioute.util.DateUtil;
+import com.sft.util.DateUtil;
 import com.aioute.util.SecurityUtil;
 import org.springframework.stereotype.Repository;
 

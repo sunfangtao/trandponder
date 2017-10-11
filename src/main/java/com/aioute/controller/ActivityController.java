@@ -2,8 +2,8 @@ package com.aioute.controller;
 
 import com.aioute.model.ActivityModel;
 import com.aioute.service.ActivityService;
-import com.aioute.util.PagingUtil;
-import com.aioute.util.SendAppJSONUtil;
+import com.sft.util.PagingUtil;
+import com.sft.util.SendAppJSONUtil;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

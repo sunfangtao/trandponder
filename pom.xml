@@ -26,6 +26,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.sft</groupId>
+            <artifactId>util</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.aioute.messagesend</groupId>
             <artifactId>messagesend</artifactId>
             <version>1.0</version>
@@ -207,15 +213,6 @@
     </dependencies>
     <build>
         <finalName>transponder</finalName>
-        <filters>
-            <filter>src/main/filter/filter-${env}.properties</filter>
-        </filters>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
 
         <plugins>
             <plugin>
@@ -233,33 +230,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <!-- 开发环境，默认激活 -->
-        <profile>
-            <id>develop</id>
-            <properties>
-                <env>develop</env>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault><!--默认启用的是dev环境配置-->
-            </activation>
-        </profile>
-        <!-- 生产环境 -->
-        <profile>
-            <id>production</id>
-            <properties>
-                <env>release</env>
-            </properties>
-        </profile>
-        <!-- 测试环境 -->
-        <profile>
-            <id>test</id>
-            <properties>
-                <env>test</env>
-            </properties>
-        </profile>
-    </profiles>
-
 
 </project>

@@ -3,7 +3,7 @@ package com.aioute.controller;
 import com.aioute.model.VersionModel;
 import com.aioute.service.VersionService;
 import com.aioute.util.CloudError;
-import com.aioute.util.SendAppJSONUtil;
+import com.sft.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

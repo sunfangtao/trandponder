@@ -5,7 +5,7 @@ import com.aioute.model.SubMaintainModel;
 import com.aioute.service.MaintainService;
 import com.aioute.service.PlatUserService;
 import com.aioute.util.CloudError;
-import com.aioute.util.SendAppJSONUtil;
+import com.sft.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Controller;

@@ -3,7 +3,7 @@ package com.aioute.dao.impl;
 import com.aioute.dao.CodeDao;
 import com.aioute.db.SqlConnectionFactory;
 import com.aioute.model.CodeModel;
-import com.aioute.util.DateUtil;
+import com.sft.util.DateUtil;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;

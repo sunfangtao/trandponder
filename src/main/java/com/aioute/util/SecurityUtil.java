@@ -1,24 +1,35 @@
 package com.aioute.util;
 
 import com.aioute.model.AppUserModel;
+import com.sft.util.DateUtil;
+import com.sft.util.FtpUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class SecurityUtil {
 
+    private static Logger logger = Logger.getLogger(SecurityUtil.class);
+
     public static String getUserId() {
-        return (String) SecurityUtils.getSubject().getSession().getAttribute("userId");
+        try {
+            return (String) SecurityUtils.getSubject().getSession().getAttribute("userId");
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static AppUserModel handlerUser(AppUserModel userModel) {
         if (userModel != null) {
             userModel.setPassword("******");
             userModel.setLogin_id("******");
+            userModel.setId("******");
+            userModel.setPush_id("******");
         }
         return userModel;
     }
@@ -26,12 +37,12 @@ public class SecurityUtil {
     public static String uploadPic(MultipartFile file) {
         FtpUtils ftpUtil = new FtpUtils();
         String temp = DateUtil.getTime(DateUtil.getCurDate()) + "";
-        String fileName = getUserId().replace("-", "") + temp.substring(temp.length() - 7) + ".jpg";
+        String fileName = UUID.randomUUID().toString().replace("-", "") + temp.substring(temp.length() - 7) + ".jpg";
         try {
             String dir = makePath(fileName);
-            if (ftpUtil.makeDirecrotys(makePath(fileName), "/")) {
+            if (ftpUtil.makeDirecrotys(dir, "/")) {
                 if (ftpUtil.upload(dir, file, fileName)) {
-                    return "ftp://" + ftpUtil.getUsername() + ":" + ftpUtil.getPassword() + "@" + ftpUtil.getUrl() + ":" + ftpUtil.getPort() + File.separator + dir + File.separator + fileName;
+                    return "ftp://" + ftpUtil.getUsername() + ":" + ftpUtil.getPassword() + "@" + ftpUtil.getUrl() + ":" + ftpUtil.getPort() + "/" + dir + "/" + fileName;
                 }
             }
         } catch (Exception e) {

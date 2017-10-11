@@ -14,12 +14,15 @@ public class SellCarModel {
     private String location;          // 所在地区
     private String gearbox;           // 变速箱
     private String dischargeStandard;// 排放标准
-    private String userType;               // 发布者类型（0：个人；1：组织）
+    private String userType;          // 发布者类型（0：个人；1：组织）
     private String photo;             //  展示图
     private String remark;            //  备注说明
     private String createdate;        //  创建时间
     private String maxprice;          //  价格上限
     private String minprice;          //  价格下限
+    private String frontImg;          // '前面图片',
+    private String behindImg;         // '后面图片',
+    private String sideImg;           // '侧面图片',
 
     public String getId() {
         return id;
@@ -163,5 +166,29 @@ public class SellCarModel {
 
     public void setMinprice(String minprice) {
         this.minprice = minprice;
+    }
+
+    public String getFrontImg() {
+        return frontImg;
+    }
+
+    public void setFrontImg(String frontImg) {
+        this.frontImg = frontImg;
+    }
+
+    public String getBehindImg() {
+        return behindImg;
+    }
+
+    public void setBehindImg(String behindImg) {
+        this.behindImg = behindImg;
+    }
+
+    public String getSideImg() {
+        return sideImg;
+    }
+
+    public void setSideImg(String sideImg) {
+        this.sideImg = sideImg;
     }
 }

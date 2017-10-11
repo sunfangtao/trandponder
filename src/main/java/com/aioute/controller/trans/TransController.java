@@ -1,15 +1,18 @@
 package com.aioute.controller.trans;
 
 import com.aioute.model.Permission;
+import com.aioute.service.FilterChainDefinitionsService;
 import com.aioute.service.PermissionService;
 import com.aioute.util.CloudError;
-import com.aioute.util.HttpClient;
+import com.sft.util.HttpClient;
 import com.aioute.util.SecurityUtil;
-import com.aioute.util.SendAppJSONUtil;
+import com.sft.util.SendAppJSONUtil;
+import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -21,6 +24,10 @@ import java.util.List;
 @RequestMapping("trans")
 public class TransController {
 
+    private static Logger logger = Logger.getLogger(TransController.class);
+
+    @Resource
+    private FilterChainDefinitionsService filterChainDefinitionsService;
     @Resource
     private PermissionService permissionService;
 
@@ -40,15 +47,17 @@ public class TransController {
                 if (permission == null) {
                     returnJson = SendAppJSONUtil.getRequireParamsMissingObject("type错误!");
                 } else {
-                    if (permission.isIs_user()) {
+                    if (permission.isIs_user() && SecurityUtils.getSubject().getPrincipal() == null) {
                         if (SecurityUtils.getSubject().getPrincipal() == null) {
                             // 用户没有登录
                             returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NOTLOGIN.getValue(), "请先登录!");
                         } else {
-                            returnJson = new HttpClient(req, res).sendByGet(permission.getAddress() + permission.getUrl(), SecurityUtil.getUserId());
+                            new HttpClient(req, res).sendByGet(permission.getAddress() + permission.getUrl(), SecurityUtil.getUserId());
+                            return;
                         }
                     } else {
-                        returnJson = new HttpClient(req, res).sendByGet(permission.getAddress() + permission.getUrl(), null);
+                        new HttpClient(req, res).sendByGet(permission.getAddress() + permission.getUrl(), null);
+                        return;
                     }
                 }
             } else {
@@ -67,7 +76,7 @@ public class TransController {
      * @param res
      */
     @RequestMapping("pic")
-    public void transPict(MultipartFile[] files, HttpServletResponse res) {
+    public void transPict(HttpServletRequest req, HttpServletResponse res, @RequestParam("files") MultipartFile[] files) {
         String returnJson = null;
         try {
             if (files != null && files.length > 0) {
@@ -80,6 +89,7 @@ public class TransController {
             } else {
                 returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请添加文件!");
             }
+            logger.info(returnJson);
             res.getWriter().write(returnJson);
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,15 +97,18 @@ public class TransController {
     }
 
     /**
-     * app更新
+     * 访问权限更新
      *
      * @param res
      */
-    @RequestMapping("update")
-    public void update(HttpServletResponse res) {
+    @RequestMapping("updatePermission")
+    public void updatePermission(HttpServletResponse res) {
         try {
+            filterChainDefinitionsService.reloadFilterChains();
             permissionService.update();
-            res.getWriter().write(SendAppJSONUtil.getNormalString("清除缓存成功!"));
+            String returnJson = SendAppJSONUtil.getNormalString("资源权限更新成功!");
+            res.setCharacterEncoding("UTF-8");
+            res.getWriter().write(returnJson);
         } catch (Exception e) {
             e.printStackTrace();
         }

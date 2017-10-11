@@ -8,7 +8,7 @@ public interface AppUserService {
 
     public AppUserModel getUserInfoByPhone(String phone);
 
-    public boolean updateUser(AppUserModel userModel, boolean isFromApp);
+    public boolean updateUser(AppUserModel userModel, boolean isUpdateStatus);
 
     public boolean addUser(AppUserModel userModel);
 

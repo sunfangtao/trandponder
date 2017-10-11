@@ -3,7 +3,7 @@ package com.aioute.service.impl;
 import com.aioute.dao.UserDao;
 import com.aioute.model.AppUserModel;
 import com.aioute.service.AppUserService;
-import com.aioute.util.DateUtil;
+import com.sft.util.DateUtil;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -22,7 +22,7 @@ public class AppUserServiceImpl implements AppUserService {
         return userDao.getUserInfoByPhone(phone);
     }
 
-    public boolean updateUser(AppUserModel userModel, boolean isFromApp) {
+    public boolean updateUser(AppUserModel userModel, boolean isUpdateStatus) {
         AppUserModel existUser = userDao.getUserInfoById(userModel.getId());
         if (userModel.getPassword() != null) {
             existUser.setPassword(userModel.getPassword());
@@ -48,14 +48,20 @@ public class AppUserServiceImpl implements AppUserService {
         if (userModel.getLogin_type() != null) {
             existUser.setLogin_type(userModel.getLogin_type());
         }
-        if (!isFromApp && userModel.getPhoto() != null) {
+        if (userModel.getPhoto() != null) {
             existUser.setPhoto(userModel.getPhoto());
         }
-        if (!isFromApp && userModel.getHand_front() != null) {
+        if (userModel.getHand_front() != null) {
             existUser.setHand_front(userModel.getHand_front());
         }
-        if (!isFromApp && userModel.getHand_reverse() != null) {
+        if (userModel.getHand_reverse() != null) {
             existUser.setHand_reverse(userModel.getHand_reverse());
+        }
+        if (isUpdateStatus && userModel.getVerify_status() > 0) {
+            existUser.setVerify_status(userModel.getVerify_status());
+        }
+        if (isUpdateStatus && userModel.getLicenceStatus() > 0) {
+            existUser.setLicenceStatus(userModel.getLicenceStatus());
         }
         existUser.setUpdate_time(DateUtil.getCurDate());
         return userDao.updateUser(existUser);

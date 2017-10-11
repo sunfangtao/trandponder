@@ -3,7 +3,7 @@ package com.aioute.service.impl;
 import com.aioute.dao.SellCarDao;
 import com.aioute.model.SellCarModel;
 import com.aioute.service.SellCarService;
-import com.aioute.util.DateUtil;
+import com.sft.util.DateUtil;
 import com.aioute.util.SecurityUtil;
 import org.springframework.stereotype.Repository;
 

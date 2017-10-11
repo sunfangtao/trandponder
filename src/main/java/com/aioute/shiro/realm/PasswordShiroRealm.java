@@ -12,7 +12,7 @@ import com.aioute.service.AppUserService;
 import com.aioute.service.CodeService;
 import com.aioute.shiro.UserNamePasswordToken;
 import com.aioute.shiro.password.DefaultPasswordEncoder;
-import com.aioute.util.DateUtil;
+import com.sft.util.DateUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;

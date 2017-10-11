@@ -6,8 +6,8 @@ import com.aioute.model.bean.PlatUserBean;
 import com.aioute.service.PicService;
 import com.aioute.service.PlatUserService;
 import com.aioute.util.CloudError;
-import com.aioute.util.PagingUtil;
-import com.aioute.util.SendAppJSONUtil;
+import com.sft.util.PagingUtil;
+import com.sft.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -74,7 +74,7 @@ public class PlatUserController {
             } else {
                 returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请上传用户ID!");
             }
-            logger.info(returnJson);
+            logger.info("获取平台用户图片信息(店面详情):" + returnJson);
             res.getWriter().write(returnJson);
         } catch (Exception e) {
             e.printStackTrace();

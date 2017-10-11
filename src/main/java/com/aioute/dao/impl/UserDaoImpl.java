@@ -43,7 +43,13 @@ public class UserDaoImpl implements UserDao {
                 userModel.setPhoto(rs.getString("photo"));
                 userModel.setHand_front(rs.getString("hand_front"));
                 userModel.setHand_reverse(rs.getString("hand_reverse"));
+                userModel.setFrontNotice(rs.getString("frontNotice"));
+                userModel.setFrontReason(rs.getString("frontReason"));
                 userModel.setVerify_status(rs.getInt("verify_status"));
+                userModel.setDriveLicence(rs.getString("driveLicence"));
+                userModel.setLicenceStatus(rs.getInt("licenceStatus"));
+                userModel.setDriveLicenceNotice(rs.getString("driveLicenceNotice"));
+                userModel.setDriveLicenceReason(rs.getString("driveLicenceReason"));
                 break;
             }
         } catch (Exception e) {
