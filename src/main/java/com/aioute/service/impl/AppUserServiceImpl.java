@@ -57,6 +57,9 @@ public class AppUserServiceImpl implements AppUserService {
         if (userModel.getHand_reverse() != null) {
             existUser.setHand_reverse(userModel.getHand_reverse());
         }
+        if (userModel.getDriveLicence() != null) {
+            existUser.setDriveLicence(userModel.getDriveLicence());
+        }
         if (isUpdateStatus && userModel.getVerify_status() > 0) {
             existUser.setVerify_status(userModel.getVerify_status());
         }

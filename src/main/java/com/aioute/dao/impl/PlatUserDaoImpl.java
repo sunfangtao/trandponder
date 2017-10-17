@@ -1,12 +1,12 @@
 package com.aioute.dao.impl;
 
 import com.aioute.dao.PlatUserDao;
-import com.aioute.db.SqlConnectionFactory;
 import com.aioute.model.PlatUserModel;
 import com.aioute.model.UserLevelModel;
 import com.aioute.model.bean.PlatUserBean;
 import com.aioute.util.CloudError;
-import com.aioute.util.SqlUtil;
+import com.sft.db.SqlConnectionFactory;
+import com.sft.util.SqlUtil;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Repository;
 

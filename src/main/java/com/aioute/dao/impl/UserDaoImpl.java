@@ -1,8 +1,8 @@
 package com.aioute.dao.impl;
 
 import com.aioute.dao.UserDao;
-import com.aioute.db.SqlConnectionFactory;
 import com.aioute.model.AppUserModel;
+import com.sft.db.SqlConnectionFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -78,7 +78,8 @@ public class UserDaoImpl implements UserDao {
 
         StringBuffer sb = new StringBuffer();
         sb.append("update app_user set password=?,email=?,sex=?,name=?,push_id=?,login_time=?,login_id=?" +
-                ",update_time=?,photo=?,hand_front=?,hand_reverse=?,verify_status=? where id=?");
+                ",update_time=?,photo=?,hand_front=?,hand_reverse=?,verify_status=?,driveLicence=?,driveLicenceReason=?," +
+                "driveLicenceNotice=?,licenceStatus=? where id=?");
         try {
             con = sqlConnectionFactory.getConnection();
             ps = con.prepareStatement(sb.toString());
@@ -94,7 +95,11 @@ public class UserDaoImpl implements UserDao {
             ps.setString(10, userModel.getHand_front());
             ps.setString(11, userModel.getHand_reverse());
             ps.setInt(12, userModel.getVerify_status());
-            ps.setString(13, userModel.getId());
+            ps.setString(13, userModel.getDriveLicence());
+            ps.setString(14, userModel.getDriveLicenceReason());
+            ps.setString(15, userModel.getDriveLicenceNotice());
+            ps.setInt(16, userModel.getLicenceStatus());
+            ps.setString(17, userModel.getId());
             int result = ps.executeUpdate();
             if (result > 0) {
                 return true;

@@ -1,6 +1,7 @@
-package com.aioute.model;
+package com.aioute.service.impl;
 
 import com.aioute.dao.ActivityDao;
+import com.aioute.model.ActivityModel;
 import com.aioute.service.ActivityService;
 import org.springframework.stereotype.Repository;
 

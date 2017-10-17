@@ -1,8 +1,8 @@
 package com.aioute.dao.impl;
 
 import com.aioute.dao.PermissionDao;
-import com.aioute.db.SqlConnectionFactory;
 import com.aioute.model.Permission;
+import com.sft.db.SqlConnectionFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;

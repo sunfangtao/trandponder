@@ -1,9 +1,9 @@
 package com.aioute.dao.impl;
 
 import com.aioute.dao.AppointmentDao;
-import com.aioute.db.SqlConnectionFactory;
 import com.aioute.model.AppointmentModel;
-import com.aioute.util.SqlUtil;
+import com.sft.db.SqlConnectionFactory;
+import com.sft.util.SqlUtil;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Repository;
 

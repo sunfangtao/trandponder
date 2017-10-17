@@ -7,11 +7,11 @@
 package com.aioute.shiro.realm;
 
 import com.aioute.model.AppUserModel;
-import com.aioute.model.CodeModel;
 import com.aioute.service.AppUserService;
-import com.aioute.service.CodeService;
 import com.aioute.shiro.UserNamePasswordToken;
 import com.aioute.shiro.password.DefaultPasswordEncoder;
+import com.sft.model.CodeModel;
+import com.sft.service.CodeService;
 import com.sft.util.DateUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;

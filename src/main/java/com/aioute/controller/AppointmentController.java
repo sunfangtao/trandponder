@@ -2,8 +2,9 @@ package com.aioute.controller;
 
 import com.aioute.model.AppointmentModel;
 import com.aioute.service.AppointmentService;
-import com.aioute.util.CloudError;
 import com.sft.util.PagingUtil;
+import com.sft.util.Params;
+import com.sft.util.SecurityUtil;
 import com.sft.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.util.StringUtils;
@@ -30,15 +31,15 @@ public class AppointmentController {
      * @param res
      */
     @RequestMapping("add")
-    public void add(AppointmentModel appointmentModel, HttpServletResponse res) {
+    public void add(AppointmentModel appointmentModel, HttpServletRequest req, HttpServletResponse res) {
 
         String returnJson = null;
+        appointmentModel.setUser_id(SecurityUtil.getUserId(req));
         if (appointmentService.addAppointment(appointmentModel)) {
             returnJson = SendAppJSONUtil.getNormalString("添加成功!");
         } else {
-            returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "添加失败!");
+            returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.SQLEXCEPTION.getValue(), "添加失败!");
         }
-        int i = 5/0;
         try {
             res.getWriter().write(returnJson);
         } catch (Exception e) {
@@ -60,13 +61,14 @@ public class AppointmentController {
             if (StringUtils.hasText(id)) {
                 AppointmentModel appointmentModel = new AppointmentModel();
                 appointmentModel.setId(id);
+                appointmentModel.setUser_id(SecurityUtil.getUserId(req));
                 if (appointmentService.cancleAppointment(appointmentModel)) {
                     resultJson = SendAppJSONUtil.getNormalString("取消成功!");
                 } else {
-                    resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "取消失败!");
+                    resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.SQLEXCEPTION.getValue(), "取消失败!");
                 }
             } else {
-                resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "请上传ID!");
+                resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NODATA.getValue(), "请上传ID!");
             }
             logger.info(resultJson);
             res.getWriter().write(resultJson);
@@ -93,6 +95,7 @@ public class AppointmentController {
             AppointmentModel appointmentModel = new AppointmentModel();
             appointmentModel.setServerType(type);
             appointmentModel.setStatus(status);
+            appointmentModel.setUser_id(SecurityUtil.getUserId(req));
             List<AppointmentModel> appointmentList = appointmentService.queryList(appointmentModel, page, pageSize);
             if (appointmentList == null || appointmentList.size() == 0) {
                 returnResult = SendAppJSONUtil.getNullResultObject();

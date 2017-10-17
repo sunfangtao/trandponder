@@ -2,11 +2,12 @@ package com.aioute.controller;
 
 import com.aioute.model.AppUserModel;
 import com.aioute.service.AppUserService;
-import com.aioute.service.CodeService;
 import com.aioute.shiro.password.DefaultPasswordEncoder;
-import com.aioute.util.CloudError;
+import com.aioute.util.Util;
+import com.sft.service.CodeService;
 import com.sft.util.DateUtil;
-import com.aioute.util.SecurityUtil;
+import com.sft.util.Params;
+import com.sft.util.SecurityUtil;
 import com.sft.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.util.StringUtils;
@@ -47,7 +48,7 @@ public class AppUserController {
                 user.setName(updateUser.getName());
             }
             if (StringUtils.hasText(updateUser.getSex())) {
-                user.setSex(updateUser.getSex().equals("0") ? "男" : "女");
+                user.setSex(updateUser.getSex());
             }
             if (StringUtils.hasText(updateUser.getPush_id())) {
                 user.setPush_id(updateUser.getPush_id());
@@ -62,19 +63,19 @@ public class AppUserController {
                 user.setLogin_type(updateUser.getLogin_type());
             }
             if (StringUtils.hasText(updateUser.getPhoto())) {
-                if (SecurityUtil.isExistFiles(updateUser.getPhoto())) {
+                if (Util.isExistFiles(updateUser.getPhoto())) {
                     user.setPhoto(updateUser.getPhoto());
                 } else {
-                    returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "头像图片地址错误!");
+                    returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NODATA.getValue(), "头像图片地址错误!");
                     res.getWriter().write(returnJson);
                     return;
                 }
             }
-            user.setId(SecurityUtil.getUserId());
+            user.setId(SecurityUtil.getUserId(req));
             if (userService.updateUser(user, false)) {
                 returnJson = SendAppJSONUtil.getNormalString("更新成功!");
             } else {
-                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "更新失败!");
+                returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.SQLEXCEPTION.getValue(), "更新失败!");
             }
             res.getWriter().write(returnJson);
         } catch (Exception e) {
@@ -88,12 +89,12 @@ public class AppUserController {
      * @param res
      */
     @RequestMapping("/detail")
-    public void userDetail(HttpServletResponse res) {
+    public void userDetail(HttpServletRequest req, HttpServletResponse res) {
         try {
-            String userId = SecurityUtil.getUserId();
+            String userId = SecurityUtil.getUserId(req);
             AppUserModel userModel = userService.getUserInfoById(userId);
             if (userModel != null) {
-                userModel = SecurityUtil.handlerUser(userModel);
+                userModel = Util.handlerUser(userModel);
             }
             logger.info(SendAppJSONUtil.getNormalString(userModel));
             res.getWriter().write(SendAppJSONUtil.getNormalString(userModel));
@@ -128,7 +129,7 @@ public class AppUserController {
                 return;
             }
             if ((returnJson = codeService.verifyCodeByPhone(phone, code)) != null) {
-                returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), returnJson);
+                returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NODATA.getValue(), returnJson);
             } else {
                 AppUserModel userModel = userService.getUserInfoByPhone(phone);
                 if (userModel == null) {
@@ -142,7 +143,7 @@ public class AppUserController {
                     if (userService.addUser(changeUser)) {
                         res.sendRedirect("/loginController/thirdLogin?login_id=" + login_id);
                     } else {
-                        returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "绑定失败!");
+                        returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.SQLEXCEPTION.getValue(), "绑定失败!");
                     }
                 } else {
                     // 更新已有用户的login_id
@@ -153,7 +154,7 @@ public class AppUserController {
                         // 绑定成功，模拟登录
                         res.sendRedirect("/loginController/thirdLogin?login_id=" + login_id);
                     } else {
-                        returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "绑定失败!");
+                        returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.SQLEXCEPTION.getValue(), "绑定失败!");
                     }
                 }
             }
@@ -168,29 +169,29 @@ public class AppUserController {
      *
      * @param res
      */
-    @RequestMapping("/verifyDricerCard")
-    public void verifyDricerCard(String driveLicence, HttpServletResponse res) {
+    @RequestMapping("/verifyDriverCard")
+    public void verifyDricerCard(String driveLicence, HttpServletRequest req, HttpServletResponse res) {
         try {
             String returnJson = null;
             if (StringUtils.hasText(driveLicence)) {
-                if (!SecurityUtil.isExistFiles(driveLicence)) {
-                    returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "图片地址错误!");
+                if (!Util.isExistFiles(driveLicence)) {
+                    returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NODATA.getValue(), "图片地址错误!");
                 } else {
-                    AppUserModel existUser = userService.getUserInfoById(SecurityUtil.getUserId());
-                    if (existUser.getLicenceStatus() == 1 || existUser.getLicenceStatus() == 2) {
-                        returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.PERMISSION.getValue(), "不允许更新驾驶证信息!");
+                    AppUserModel existUser = userService.getUserInfoById(SecurityUtil.getUserId(req));
+                    if (existUser.getLicenceStatus() == Params.VerifyStatus.VERIFYING.getValue() || existUser.getLicenceStatus() == Params.VerifyStatus.VERIFY_SUCCESS.getValue()) {
+                        returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PERMISSION.getValue(), "不允许更新驾驶证信息!");
                     } else {
                         AppUserModel user = new AppUserModel();
-                        user.setId(SecurityUtil.getUserId());
+                        user.setId(SecurityUtil.getUserId(req));
                         user.setDriveLicence(driveLicence);
-                        user.setLicenceStatus(1);
+                        user.setLicenceStatus(Params.VerifyStatus.VERIFYING.getValue());
                         if (userService.updateUser(user, true)) {
-                            user.setDriveLicence(driveLicence);
-                            user.setLicenceStatus(1);
-                            existUser = SecurityUtil.handlerUser(existUser);
+                            existUser.setDriveLicence(driveLicence);
+                            existUser.setLicenceStatus(Params.VerifyStatus.VERIFYING.getValue());
+                            existUser = Util.handlerUser(existUser);
                             returnJson = SendAppJSONUtil.getNormalString(existUser);
                         } else {
-                            returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "上传失败!");
+                            returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.SQLEXCEPTION.getValue(), "上传失败!");
                         }
                     }
                 }
@@ -209,30 +210,30 @@ public class AppUserController {
      * @param res
      */
     @RequestMapping("/verifyIDCard")
-    public void verifyIDCard(String hand_front, String hand_reverse, HttpServletResponse res) {
+    public void verifyIDCard(String hand_front, String hand_reverse, HttpServletRequest req, HttpServletResponse res) {
         try {
             String returnJson = null;
             if (StringUtils.hasText(hand_front) && StringUtils.hasText(hand_reverse)) {
-                if (!SecurityUtil.isExistFiles(hand_front, hand_reverse)) {
-                    returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "图片地址错误!");
+                if (!Util.isExistFiles(hand_front, hand_reverse)) {
+                    returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NODATA.getValue(), "图片地址错误!");
                 } else {
-                    AppUserModel existUser = userService.getUserInfoById(SecurityUtil.getUserId());
-                    if (existUser.getVerify_status() == 1 || existUser.getVerify_status() == 2) {
-                        returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.PERMISSION.getValue(), "不允许更新身份证信息!");
+                    AppUserModel existUser = userService.getUserInfoById(SecurityUtil.getUserId(req));
+                    if (existUser.getVerify_status() == Params.VerifyStatus.VERIFYING.getValue() || existUser.getVerify_status() == Params.VerifyStatus.VERIFY_SUCCESS.getValue()) {
+                        returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PERMISSION.getValue(), "不允许更新身份证信息!");
                     } else {
                         AppUserModel user = new AppUserModel();
-                        user.setId(SecurityUtil.getUserId());
+                        user.setId(SecurityUtil.getUserId(req));
                         user.setHand_front(hand_front);
                         user.setHand_reverse(hand_reverse);
-                        user.setVerify_status(1);
+                        user.setVerify_status(Params.VerifyStatus.VERIFYING.getValue());
                         if (userService.updateUser(user, true)) {
                             existUser.setHand_front(hand_front);
                             existUser.setHand_reverse(hand_reverse);
-                            existUser.setVerify_status(1);
-                            existUser = SecurityUtil.handlerUser(existUser);
+                            existUser.setVerify_status(Params.VerifyStatus.VERIFYING.getValue());
+                            existUser = Util.handlerUser(existUser);
                             returnJson = SendAppJSONUtil.getNormalString(existUser);
                         } else {
-                            returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "上传失败!");
+                            returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.SQLEXCEPTION.getValue(), "上传失败!");
                         }
                     }
                 }

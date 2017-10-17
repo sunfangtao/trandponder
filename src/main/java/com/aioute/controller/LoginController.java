@@ -3,9 +3,9 @@ package com.aioute.controller;
 import com.aioute.model.AppUserModel;
 import com.aioute.service.AppUserService;
 import com.aioute.shiro.UserNamePasswordToken;
-import com.aioute.util.CloudError;
+import com.aioute.util.Util;
 import com.sft.util.DateUtil;
-import com.aioute.util.SecurityUtil;
+import com.sft.util.Params;
 import com.sft.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -48,7 +48,7 @@ public class LoginController {
                 if (phone == null || phone.length() == 0) {
                     // 非法请求
                     logger.info("用户请求未认证");
-                    resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NOTLOGIN.getValue(), "请先登录！");
+                    resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NOTLOGIN.getValue(), "请先登录！");
                 } else {
                     AppUserModel user = userService.getUserInfoByPhone(phone);
                     resultJson = loginSuccess(user);
@@ -58,9 +58,9 @@ public class LoginController {
                 // 失败
                 logger.info("用户登录失败 " + errorClassName);
                 if (errorClassName.contains("IncorrectCredentialsException")) {
-                    resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.PASSWORDERROR.getValue(), "密码错误！");
+                    resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PASSWORDERROR.getValue(), "密码错误！");
                 } else if (errorClassName.contains("UnknownAccountException")) {
-                    resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NOACCOUNT.getValue(), "用户不存在！");
+                    resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NOACCOUNT.getValue(), "用户不存在！");
                 } else {
                     resultJson = SendAppJSONUtil.getFailResultObject("", "登录失败！");
                 }
@@ -97,11 +97,11 @@ public class LoginController {
                         e.printStackTrace();
                     }
                 } else {
-                    resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "请先绑定手机号!");
+                    resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NODATA.getValue(), "请先绑定手机号!");
                 }
             } else {
                 // 失败
-                resultJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NOREQUIREPARAMS.getValue(), "缺少第三方认证信息！");
+                resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NOREQUIREPARAMS.getValue(), "缺少第三方认证信息！");
             }
             res.getWriter().write(resultJson);
         } catch (Exception e) {
@@ -114,10 +114,10 @@ public class LoginController {
 
         if (userModel.getDel_flag() > 0) {
             // 用户被禁用
-            return SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.PERMISSION.getValue(), "账号被禁用，无权登录");
+            return SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PERMISSION.getValue(), "账号被禁用，无权登录");
         } else {
             userService.updateUser(userModel, false);
-            userModel = SecurityUtil.handlerUser(userModel);
+            userModel = Util.handlerUser(userModel);
             return SendAppJSONUtil.getNormalString(userModel);
         }
     }

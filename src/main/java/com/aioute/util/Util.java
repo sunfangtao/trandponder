@@ -4,7 +4,6 @@ import com.aioute.model.AppUserModel;
 import com.sft.util.DateUtil;
 import com.sft.util.FtpUtils;
 import org.apache.log4j.Logger;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,17 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class SecurityUtil {
+public class Util {
 
-    private static Logger logger = Logger.getLogger(SecurityUtil.class);
-
-    public static String getUserId() {
-        try {
-            return (String) SecurityUtils.getSubject().getSession().getAttribute("userId");
-        } catch (Exception e) {
-            return null;
-        }
-    }
+    private static Logger logger = Logger.getLogger(Util.class);
 
     public static AppUserModel handlerUser(AppUserModel userModel) {
         if (userModel != null) {

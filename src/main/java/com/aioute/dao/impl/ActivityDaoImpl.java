@@ -1,8 +1,8 @@
 package com.aioute.dao.impl;
 
 import com.aioute.dao.ActivityDao;
-import com.aioute.db.SqlConnectionFactory;
 import com.aioute.model.ActivityModel;
+import com.sft.db.SqlConnectionFactory;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.stereotype.Repository;
 

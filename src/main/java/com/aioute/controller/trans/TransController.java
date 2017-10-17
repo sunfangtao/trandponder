@@ -3,9 +3,10 @@ package com.aioute.controller.trans;
 import com.aioute.model.Permission;
 import com.aioute.service.FilterChainDefinitionsService;
 import com.aioute.service.PermissionService;
-import com.aioute.util.CloudError;
+import com.aioute.util.Util;
 import com.sft.util.HttpClient;
-import com.aioute.util.SecurityUtil;
+import com.sft.util.Params;
+import com.sft.util.SecurityUtil;
 import com.sft.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -47,12 +48,12 @@ public class TransController {
                 if (permission == null) {
                     returnJson = SendAppJSONUtil.getRequireParamsMissingObject("type错误!");
                 } else {
-                    if (permission.isIs_user() && SecurityUtils.getSubject().getPrincipal() == null) {
+                    if (permission.isIs_user()) {
                         if (SecurityUtils.getSubject().getPrincipal() == null) {
                             // 用户没有登录
-                            returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NOTLOGIN.getValue(), "请先登录!");
+                            returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NOTLOGIN.getValue(), "请先登录!");
                         } else {
-                            new HttpClient(req, res).sendByGet(permission.getAddress() + permission.getUrl(), SecurityUtil.getUserId());
+                            new HttpClient(req, res).sendByGet(permission.getAddress() + permission.getUrl(), SecurityUtil.getUserId(req));
                             return;
                         }
                     } else {
@@ -81,10 +82,10 @@ public class TransController {
         try {
             if (files != null && files.length > 0) {
                 List<String> picUrl = null;
-                if ((picUrl = SecurityUtil.uploadPics(files)) != null) {
+                if ((picUrl = Util.uploadPics(files)) != null) {
                     returnJson = SendAppJSONUtil.getNormalString(picUrl);
                 } else {
-                    returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.SQLEXCEPTION.getValue(), "上传失败!");
+                    returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.SQLEXCEPTION.getValue(), "上传失败!");
                 }
             } else {
                 returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请添加文件!");

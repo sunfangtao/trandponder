@@ -3,10 +3,10 @@ package com.aioute.controller;
 import com.aioute.model.PlatUserModel;
 import com.aioute.model.UserLevelModel;
 import com.aioute.model.bean.PlatUserBean;
-import com.aioute.service.PicService;
 import com.aioute.service.PlatUserService;
-import com.aioute.util.CloudError;
+import com.sft.service.PicService;
 import com.sft.util.PagingUtil;
+import com.sft.util.Params;
 import com.sft.util.SendAppJSONUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.util.StringUtils;
@@ -41,7 +41,7 @@ public class PlatUserController {
             if (StringUtils.hasText(userId)) {
                 PlatUserModel user = platUserService.getDetail(userId);
                 if (user == null) {
-                    returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "用户ID不存在!");
+                    returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NODATA.getValue(), "用户ID不存在!");
                 } else {
                     returnJson = SendAppJSONUtil.getNormalString(user);
                 }
@@ -69,7 +69,7 @@ public class PlatUserController {
                     List<String> picList = picService.getPics(userId);
                     returnJson = SendAppJSONUtil.getNormalString(picList);
                 } else {
-                    returnJson = SendAppJSONUtil.getFailResultObject(CloudError.ReasonEnum.NODATA.getValue(), "用户ID不存在!");
+                    returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NODATA.getValue(), "用户ID不存在!");
                 }
             } else {
                 returnJson = SendAppJSONUtil.getRequireParamsMissingObject("请上传用户ID!");
