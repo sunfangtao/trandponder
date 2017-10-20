@@ -25,7 +25,7 @@ public class PermissionDaoImpl implements PermissionDao {
 
         Permission permission = new Permission();
         StringBuffer sb = new StringBuffer();
-        sb.append("select p.*,s.address from app_permission p,sub_server s where p.type = ?");
+        sb.append("select p.*,s.address,s.is_redict from app_permission p,sub_server s where p.type = ?");
         sb.append(" and p.server_id = s.id");
 
         try {
@@ -38,6 +38,7 @@ public class PermissionDaoImpl implements PermissionDao {
                 permission.setType(rs.getString("type"));
                 permission.setAddress(rs.getString("address"));
                 permission.setIs_user(rs.getInt("is_user") == 0 ? false : true);
+                permission.setRedict(rs.getInt("is_redict") == 0 ? false : true);
                 return permission;
             }
         } catch (Exception e) {

@@ -209,4 +209,5 @@ public class AppUserModel {
     public void setFrontNotice(String frontNotice) {
         this.frontNotice = frontNotice;
     }
+
 }

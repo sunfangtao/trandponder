@@ -53,18 +53,17 @@ public class TransController {
                             // 用户没有登录
                             returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NOTLOGIN.getValue(), "请先登录!");
                         } else {
-                            new HttpClient(req, res).sendByGet(permission.getAddress() + permission.getUrl(), SecurityUtil.getUserId(req));
-                            return;
+                            returnJson = new HttpClient(req, res, permission.isRedict()).sendByGet(permission.getAddress() + permission.getUrl(), SecurityUtil.getUserId(req));
                         }
                     } else {
-                        new HttpClient(req, res).sendByGet(permission.getAddress() + permission.getUrl(), null);
-                        return;
+                        returnJson = new HttpClient(req, res, permission.isRedict()).sendByGet(permission.getAddress() + permission.getUrl(), null);
                     }
                 }
             } else {
                 returnJson = SendAppJSONUtil.getRequireParamsMissingObject("没有type!");
             }
 
+            if (returnJson == null) return;
             res.getWriter().write(returnJson);
         } catch (Exception e) {
             e.printStackTrace();

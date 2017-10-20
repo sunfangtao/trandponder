@@ -7,6 +7,7 @@ public class Permission {
     private String url;//'链接地址',
     private String type;//'链接映射标识'
     private String address;
+    private boolean isRedict;
 
     @Override
     public boolean equals(Object obj) {
@@ -65,5 +66,13 @@ public class Permission {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public boolean isRedict() {
+        return isRedict;
+    }
+
+    public void setRedict(boolean redict) {
+        isRedict = redict;
     }
 }
