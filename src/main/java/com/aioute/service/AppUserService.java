@@ -4,13 +4,11 @@ import com.aioute.model.AppUserModel;
 
 public interface AppUserService {
 
-    public AppUserModel getUserInfoById(String userId);
-
     public AppUserModel getUserInfoByPhone(String phone);
 
-    public boolean updateUser(AppUserModel userModel, boolean isUpdateStatus);
-
-    public boolean addUser(AppUserModel userModel);
+    public boolean updateUser(AppUserModel userModel);
 
     public AppUserModel getUserInfoByLoginId(String login_id);
+
+    public boolean addUser(AppUserModel userModel);
 }

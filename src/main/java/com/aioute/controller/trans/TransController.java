@@ -1,16 +1,15 @@
 package com.aioute.controller.trans;
 
+import com.aioute.chain.ShiroPermissionFactory;
 import com.aioute.model.Permission;
-import com.aioute.service.FilterChainDefinitionsService;
 import com.aioute.service.PermissionService;
-import com.aioute.util.Util;
-import com.sft.util.HttpClient;
-import com.sft.util.Params;
-import com.sft.util.SecurityUtil;
-import com.sft.util.SendAppJSONUtil;
+import com.sft.util.*;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.StringUtils;
+import org.apache.shiro.web.filter.mgt.DefaultFilterChainManager;
+import org.apache.shiro.web.filter.mgt.PathMatchingFilterChainResolver;
+import org.apache.shiro.web.servlet.AbstractShiroFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("trans")
@@ -28,9 +29,9 @@ public class TransController {
     private static Logger logger = Logger.getLogger(TransController.class);
 
     @Resource
-    private FilterChainDefinitionsService filterChainDefinitionsService;
-    @Resource
     private PermissionService permissionService;
+    @Resource
+    private ShiroPermissionFactory permissFactory;
 
     /**
      * app接口转发
@@ -64,6 +65,7 @@ public class TransController {
             }
 
             if (returnJson == null) return;
+            logger.info(returnJson);
             res.getWriter().write(returnJson);
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,7 +83,7 @@ public class TransController {
         try {
             if (files != null && files.length > 0) {
                 List<String> picUrl = null;
-                if ((picUrl = Util.uploadPics(files)) != null) {
+                if ((picUrl = FTPPicUtil.uploadPics(files)) != null) {
                     returnJson = SendAppJSONUtil.getNormalString(picUrl);
                 } else {
                     returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.SQLEXCEPTION.getValue(), "上传失败!");
@@ -104,7 +106,42 @@ public class TransController {
     @RequestMapping("updatePermission")
     public void updatePermission(HttpServletResponse res) {
         try {
-            filterChainDefinitionsService.reloadFilterChains();
+            synchronized (permissFactory) { // 强制同步，控制线程安全
+                AbstractShiroFilter shiroFilter = null;
+                try {
+                    shiroFilter = (AbstractShiroFilter) permissFactory.getObject();
+                    PathMatchingFilterChainResolver resolver = (PathMatchingFilterChainResolver) shiroFilter
+                            .getFilterChainResolver();
+                    // 过滤管理器
+                    DefaultFilterChainManager manager = (DefaultFilterChainManager) resolver.getFilterChainManager();
+                    // 清除权限配置
+//                manager.getFilterChains().clear();
+                    permissFactory.getFilterChainDefinitionMap().clear();
+                    // 重新设置权限
+                    permissFactory.setFilterChainDefinitions(ShiroPermissionFactory.definition);// 传入配置中的filterchains
+
+                    Map<String, String> map = new HashMap<String, String>();
+                    List<Permission> permissions = permissionService.getAllAppPermission();
+                    // 循环Resource的url,逐个添加到section中。section就是filterChainDefinitionMap,
+                    // 里面的键就是链接URL,值就是存在什么条件才能访问该链接
+                    if (permissions != null) {
+                        for (Permission permission : permissions) {
+                            // 如果不为空值添加到map中
+                            if (StringUtils.hasText(permission.getUrl()) && StringUtils.hasText(permission.getUrl())) {
+                                if (!permission.getUrl().startsWith("/")) {
+                                    permission.setUrl("/" + permission.getUrl());
+                                }
+                                manager.createChain(permission.getUrl(), "user");
+                                map.put(permission.getUrl(), "user");
+                            }
+                        }
+                    }
+                    map.put("/**", "anon");
+                    permissFactory.setFilterChainDefinitionMap(map);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             permissionService.update();
             String returnJson = SendAppJSONUtil.getNormalString("资源权限更新成功!");
             res.setCharacterEncoding("UTF-8");

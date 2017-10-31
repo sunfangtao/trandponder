@@ -228,6 +228,12 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+            <!--<plugin>-->
+                <!--<artifactId>maven-war-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<warName>transponder</warName>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 

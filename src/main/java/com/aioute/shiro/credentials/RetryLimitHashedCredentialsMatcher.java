@@ -1,7 +1,7 @@
 package com.aioute.shiro.credentials;
 
 import com.aioute.shiro.UserNamePasswordToken;
-import com.aioute.shiro.password.DefaultPasswordEncoder;
+import com.sft.password.DefaultPasswordEncoder;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SaltedAuthenticationInfo;

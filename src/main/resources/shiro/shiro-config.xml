@@ -65,7 +65,7 @@
     </bean>
 
     <!-- 密码加密 -->
-    <bean id="defaultPasswordEncoder" class="com.aioute.shiro.password.DefaultPasswordEncoder">
+    <bean id="defaultPasswordEncoder" class="com.sft.password.DefaultPasswordEncoder">
         <property name="encodingAlgorithm" value="MD5"/>
         <property name="characterEncoding" value="UTF8"/>
     </bean>

@@ -3,7 +3,6 @@ package com.aioute.controller;
 import com.aioute.model.AppUserModel;
 import com.aioute.service.AppUserService;
 import com.aioute.shiro.UserNamePasswordToken;
-import com.aioute.util.Util;
 import com.sft.util.DateUtil;
 import com.sft.util.Params;
 import com.sft.util.SendAppJSONUtil;
@@ -116,8 +115,11 @@ public class LoginController {
             // 用户被禁用
             return SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PERMISSION.getValue(), "账号被禁用，无权登录");
         } else {
-            userService.updateUser(userModel, false);
-            userModel = Util.handlerUser(userModel);
+            userService.updateUser(userModel);
+            userModel.setPassword("******");
+            userModel.setLogin_id("******");
+            userModel.setId("******");
+            userModel.setPush_id("******");
             return SendAppJSONUtil.getNormalString(userModel);
         }
     }
@@ -125,20 +127,19 @@ public class LoginController {
     @RequestMapping("test")
     public void testLogin(HttpServletRequest req, HttpServletResponse res) {
         try {
-            String resultJson = null;
             String phone = req.getParameter("phone");
             String code = req.getParameter("code");
             // 模拟登录
             UserNamePasswordToken token = new UserNamePasswordToken(phone, code, false);
             try {
                 SecurityUtils.getSubject().login(token);
-                resultJson = "用户开始登录";
-                logger.info("用户开始登录 ：");
+                logger.info("用户开始登录(测试接口) ：phone=" + phone + " code=" + code);
+                res.getWriter().write("用户测试登录成功 phone=" + phone);
             } catch (Exception e) {
-                resultJson = "用户登录失败";
                 e.printStackTrace();
+                res.getWriter().write("用户测试登录失败 phone=" + phone);
+                logger.info("用户开始登录(测试接口) ：phone=" + phone + " code=" + code);
             }
-            res.getWriter().write(resultJson);
         } catch (Exception e) {
             e.printStackTrace();
         }
