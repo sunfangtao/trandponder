@@ -47,6 +47,8 @@ public class ShiroPermissionFactory extends ShiroFilterFactoryBean {
                 }
             }
         }
+        // 上传图片需要APP用户认证
+        section.put("/trans/pic", "user");
         section.put("/**", "anon");
         this.setFilterChainDefinitionMap(section);
     }

@@ -77,7 +77,7 @@ public class UserDaoImpl implements UserDao {
         PreparedStatement ps = null;
 
         StringBuffer sb = new StringBuffer();
-        sb.append("update app_user set login_time=? where id=?");
+        sb.append("update app_user set login_time=?,login_id = '" + userModel.getLogin_id() + "'where id=?");
         try {
             con = sqlConnectionFactory.getConnection();
             ps = con.prepareStatement(sb.toString());

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 @Controller
 @RequestMapping("trans")
@@ -41,34 +42,54 @@ public class TransController {
      */
     @RequestMapping("app")
     public void transPlat(HttpServletRequest req, HttpServletResponse res) {
-        String returnJson = null;
-        String type = req.getParameter("type");
+        Lock lock = MtbhLock.getLock(SecurityUtil.getRemoteIP(req));
+        lock.lock();
         try {
-            if (StringUtils.hasText(type)) {
-                Permission permission = permissionService.getUrlByType(type);
-                if (permission == null) {
-                    returnJson = SendAppJSONUtil.getRequireParamsMissingObject("type错误!");
-                } else {
-                    if (permission.isIs_user()) {
-                        if (SecurityUtils.getSubject().getPrincipal() == null) {
-                            // 用户没有登录
-                            returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NOTLOGIN.getValue(), "请先登录!");
-                        } else {
-                            returnJson = new HttpClient(req, res, permission.isRedict()).sendByGet(permission.getAddress() + permission.getUrl(), SecurityUtil.getUserId(req));
-                        }
+            String returnJson = null;
+            String type = req.getParameter("type");
+            StringBuffer sb = new StringBuffer();
+            try {
+                if (StringUtils.hasText(type)) {
+                    Permission permission = permissionService.getUrlByType(type);
+                    if (permission == null) {
+                        returnJson = SendAppJSONUtil.getRequireParamsMissingObject("type错误!");
                     } else {
-                        returnJson = new HttpClient(req, res, permission.isRedict()).sendByGet(permission.getAddress() + permission.getUrl(), null);
+                        sb.append("ip=" + SecurityUtil.getRemoteIP(req) + " user=" + SecurityUtils.getSubject().getPrincipal() + " type=" + type);
+                        Map<String, String[]> paramsMap = req.getParameterMap();
+                        if (paramsMap != null) {
+                            sb.append("\nURL: ").append(permission.getAddress() + permission.getUrl()).append("?");
+                            StringBuffer sb2 = new StringBuffer();
+                            for (String key : paramsMap.keySet()) {
+                                sb2.append("&").append(key).append("=").append(paramsMap.get(key)[0]);
+                            }
+                            sb.append(sb2.substring(1));
+                        }
+                        logger.info(sb.toString());
+                        if (permission.isIs_user()) {
+                            if (SecurityUtils.getSubject().getPrincipal() == null) {
+                                // 用户没有登录
+                                returnJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NOTLOGIN.getValue(), "请先登录!");
+                            } else {
+                                returnJson = new HttpClient(req, res, permission.isRedict()).sendByGet(permission.getAddress() + permission.getUrl(), SecurityUtil.getUserId(req));
+                            }
+                        } else {
+                            returnJson = new HttpClient(req, res, permission.isRedict()).sendByGet(permission.getAddress() + permission.getUrl(), null);
+                        }
                     }
+                } else {
+                    returnJson = SendAppJSONUtil.getRequireParamsMissingObject("没有type!");
                 }
-            } else {
-                returnJson = SendAppJSONUtil.getRequireParamsMissingObject("没有type!");
-            }
 
-            if (returnJson == null) return;
-            logger.info(returnJson);
-            res.getWriter().write(returnJson);
+                if (returnJson == null) return;
+                logger.info(returnJson);
+                res.getWriter().write(returnJson);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+
+        } finally {
+            lock.unlock();
         }
     }
 

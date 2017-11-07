@@ -1,5 +1,7 @@
 package com.aioute.model;
 
+import com.sft.util.DateUtil;
+
 public class AppUserModel {
 
     private String id; // '编号'
@@ -79,7 +81,7 @@ public class AppUserModel {
     }
 
     public void setCreate_time(String create_time) {
-        this.create_time = create_time;
+        this.create_time = DateUtil.getDeletePointDate(create_time);
     }
 
     public String getName() {
@@ -127,7 +129,7 @@ public class AppUserModel {
     }
 
     public void setLogin_time(String login_time) {
-        this.login_time = login_time;
+        this.login_time = DateUtil.getDeletePointDate(login_time);
     }
 
     public String getUpdate_time() {
