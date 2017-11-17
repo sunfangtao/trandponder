@@ -40,6 +40,30 @@ public class LoginController {
      * @param req
      * @param res
      */
+    @RequestMapping("logout")
+    public void logout(HttpServletRequest req, HttpServletResponse res) {
+        try {
+            String phone = (String) SecurityUtils.getSubject().getPrincipal();
+            logger.info(phone + " logout");
+            AppUserModel userModel = userService.getUserInfoByPhone(phone);
+            SecurityUtils.getSubject().getSession().removeAttribute("userId");
+            SecurityUtils.getSubject().logout();
+            userModel.setPass_val("0");
+            userService.updateUser(userModel);
+            String result = SendAppJSONUtil.getNormalString("退出登录成功!");
+            logger.info(result);
+            res.getWriter().write(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 用户登录
+     *
+     * @param req
+     * @param res
+     */
     @RequestMapping("login")
     public void login(HttpServletRequest req, HttpServletResponse res) {
         try {
@@ -64,9 +88,15 @@ public class LoginController {
                 // 失败
                 logger.info("用户登录失败 " + errorClassName);
                 if (errorClassName.contains("IncorrectCredentialsException")) {
-                    resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PASSWORDERROR.getValue(), "密码错误！");
+                    resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PASSWORDERROR.getValue(), "验证码错误！");
                 } else if (errorClassName.contains("UnknownAccountException")) {
                     resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.NOACCOUNT.getValue(), "用户不存在！");
+                } else if (errorClassName.contains("NoCodeException")) {
+                    resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PERMISSION.getValue(), "请获取验证码！");
+                } else if (errorClassName.contains("CodeErrorException")) {
+                    resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PERMISSION.getValue(), "验证码错误！");
+                } else if (errorClassName.contains("CodeInvalicException")) {
+                    resultJson = SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PERMISSION.getValue(), "验证码失效！");
                 } else {
                     resultJson = SendAppJSONUtil.getFailResultObject("", "登录失败！");
                 }
@@ -150,6 +180,7 @@ public class LoginController {
                     changeUser.setId(UUID.randomUUID().toString());
                     changeUser.setLogin_id(login_id);
                     changeUser.setLogin_name(phone);
+                    changeUser.setPass_val("1");
                     changeUser.setPassword(defaultPasswordEncoder.encode(code));
                     changeUser.setCreate_time(DateUtil.getCurDate());
                     if (userService.addUser(changeUser)) {
@@ -162,6 +193,7 @@ public class LoginController {
                     AppUserModel changeUser = new AppUserModel();
                     changeUser.setId(userModel.getId());
                     changeUser.setLogin_id(login_id);
+                    changeUser.setPass_val(null);
                     if (userService.updateUser(changeUser)) {
                         // 绑定成功，模拟登录
                         res.sendRedirect("../loginController/thirdLogin?login_id=" + login_id);
@@ -180,7 +212,8 @@ public class LoginController {
 
     private String loginSuccess(AppUserModel userModel) {
         userModel.setLogin_time(DateUtil.getCurDate());
-
+        // 登录成功不修改密码有效位
+        userModel.setPass_val(null);
         if (userModel.getDel_flag() > 0) {
             // 用户被禁用
             return SendAppJSONUtil.getFailResultObject(Params.ReasonEnum.PERMISSION.getValue(), "账号被禁用，无权登录");

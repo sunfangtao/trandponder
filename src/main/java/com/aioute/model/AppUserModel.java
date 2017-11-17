@@ -27,6 +27,7 @@ public class AppUserModel {
     private int licenceStatus;
     private String frontReason;// 原因
     private String frontNotice;// 注意
+    private String pass_val;
 
     public String getId() {
         return id;
@@ -212,4 +213,11 @@ public class AppUserModel {
         this.frontNotice = frontNotice;
     }
 
+    public String getPass_val() {
+        return pass_val;
+    }
+
+    public void setPass_val(String pass_val) {
+        this.pass_val = pass_val;
+    }
 }

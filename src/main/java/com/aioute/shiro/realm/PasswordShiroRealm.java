@@ -9,16 +9,16 @@ package com.aioute.shiro.realm;
 import com.aioute.model.AppUserModel;
 import com.aioute.service.AppUserService;
 import com.aioute.shiro.UserNamePasswordToken;
+import com.aioute.shiro.exception.CodeErrorException;
+import com.aioute.shiro.exception.CodeInvalicException;
+import com.aioute.shiro.exception.NoCodeException;
 import com.sft.model.CodeModel;
 import com.sft.password.DefaultPasswordEncoder;
 import com.sft.service.CodeService;
 import com.sft.util.DateUtil;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.session.Session;
@@ -77,7 +77,7 @@ public class PasswordShiroRealm extends AuthorizingRealm {
         }
 
         if (!StringUtils.hasText(username)) {
-            return null;
+            throw new UnknownAccountException("");
         }
         AppUserModel user = userService.getUserInfoByPhone(username);
         if (user == null) {
@@ -85,11 +85,12 @@ public class PasswordShiroRealm extends AuthorizingRealm {
             // 先验证验证码(密码)
             CodeModel codeModel = codeService.getCodeByPhone(username);
             if (codeModel == null) {
-                return null;
+                throw new NoCodeException("请先获取验证码!");
             }
             long range = (DateUtil.getTime(DateUtil.getCurDate()) - DateUtil.getTime(codeModel.getCreate_date())) / 60 / 1000;
             if (range > codeModel.getDuration()) {
-                return null;
+                // 验证码失效
+                throw new CodeInvalicException("验证码失效!");
             }
 
             String password = new String(token.getPassword());
@@ -99,11 +100,18 @@ public class PasswordShiroRealm extends AuthorizingRealm {
                 user.setLogin_name(username);
                 user.setPassword(defaultPasswordEncoder.encode(password));
                 user.setCreate_time(DateUtil.getCurDate());
+                user.setPass_val("1");
                 userService.addUser(user);
+            } else {
+                // 验证码错误
+                throw new CodeErrorException("验证码错误!");
             }
-
         }
         String password = user.getPassword();
+        if (!token.isThirdLogin() && !"1".equals(user.getPass_val())) {
+            // 密码失效
+            throw new CodeInvalicException("验证码失效!");
+        }
         if (!StringUtils.hasText(password)) {
             return null;
         }

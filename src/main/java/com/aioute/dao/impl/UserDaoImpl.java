@@ -50,6 +50,7 @@ public class UserDaoImpl implements UserDao {
                 userModel.setLicenceStatus(rs.getInt("licenceStatus"));
                 userModel.setDriveLicenceNotice(rs.getString("driveLicenceNotice"));
                 userModel.setDriveLicenceReason(rs.getString("driveLicenceReason"));
+                userModel.setPass_val(rs.getString("pass_val"));
                 break;
             }
         } catch (Exception e) {
@@ -77,7 +78,11 @@ public class UserDaoImpl implements UserDao {
         PreparedStatement ps = null;
 
         StringBuffer sb = new StringBuffer();
-        sb.append("update app_user set login_time=?,login_id = '" + userModel.getLogin_id() + "'where id=?");
+        sb.append("update app_user set login_time=?");
+        if (userModel.getPass_val() != null) {
+            sb.append(",pass_val = " + userModel.getPass_val());
+        }
+        sb.append(",login_id = '" + userModel.getLogin_id() + "'where id=?");
         try {
             con = sqlConnectionFactory.getConnection();
             ps = con.prepareStatement(sb.toString());
