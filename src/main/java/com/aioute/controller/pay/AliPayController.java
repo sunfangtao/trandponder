@@ -4,7 +4,6 @@ import com.aioute.controller.trans.TransController;
 import com.aioute.model.Permission;
 import com.aioute.service.PermissionService;
 import com.sft.util.HttpClient;
-import com.sft.util.SecurityUtil;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @Controller
 @RequestMapping("alipayNotice")
@@ -30,12 +30,7 @@ public class AliPayController {
     @RequestMapping("rentalOrder")
     public void rentalOrder(HttpServletRequest req, HttpServletResponse res) {
         try {
-            logger.info("rentalOrder ip=" + SecurityUtil.getRemoteIP(req));
-            if ("success".equals(payProcess(req, res, "rentalOrderAlipayNotice"))) {
-                res.getWriter().write("success");
-            } else if("success".equals(payProcess(req, res, "rentalOrderWXNotice"))){
-                res.getWriter().write("success");
-            }
+            res.getWriter().write(payProcess(req, res));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -50,22 +45,38 @@ public class AliPayController {
     @RequestMapping("commonOrder")
     public void commonOrder(HttpServletRequest req, HttpServletResponse res) {
         try {
-            logger.info("commonOrder ip=" + SecurityUtil.getRemoteIP(req));
-            if ("success".equals(payProcess(req, res, "commonOrderAlipayNotice"))) {
-                res.getWriter().write("success");
-            }else if("success".equals(payProcess(req, res, "commonOrderWXNotice"))){
-                res.getWriter().write("success");
-            }
+            res.getWriter().write(payProcess(req, res));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private String payProcess(HttpServletRequest req, HttpServletResponse res, String type) {
+    private String payProcess(HttpServletRequest req, HttpServletResponse res) {
+        String type = null;
+        HttpClient client = new HttpClient(req, res, false);
+        Map<String, String[]> map = req.getParameterMap();
+        if (map == null || map.size() == 0) {
+            // 微信支付
+            String inputLine;
+            String notityXml = "";
+            try {
+                while ((inputLine = req.getReader().readLine()) != null) {
+                    notityXml += inputLine;
+                }
+                req.getReader().close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            client.setParameter("notityXml", notityXml);
+            type = "rentalOrderWXNotice";
+        } else {
+            // 阿里支付
+            type = "rentalOrderAliNotice";
+        }
         Permission permission = permissionService.getUrlByType(type);
         if (permission == null) {
             return "";
         }
-        return new HttpClient(req, res, false).sendByGet(permission.getAddress() + permission.getUrl(), null);
+        return client.sendByGet(permission.getAddress() + permission.getUrl(), null);
     }
 }
