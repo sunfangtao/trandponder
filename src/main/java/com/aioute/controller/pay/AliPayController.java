@@ -33,6 +33,8 @@ public class AliPayController {
             logger.info("rentalOrder ip=" + SecurityUtil.getRemoteIP(req));
             if ("success".equals(payProcess(req, res, "rentalOrderAlipayNotice"))) {
                 res.getWriter().write("success");
+            } else if("success".equals(payProcess(req, res, "rentalOrderWXNotice"))){
+                res.getWriter().write("success");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,6 +52,8 @@ public class AliPayController {
         try {
             logger.info("commonOrder ip=" + SecurityUtil.getRemoteIP(req));
             if ("success".equals(payProcess(req, res, "commonOrderAlipayNotice"))) {
+                res.getWriter().write("success");
+            }else if("success".equals(payProcess(req, res, "commonOrderWXNotice"))){
                 res.getWriter().write("success");
             }
         } catch (Exception e) {

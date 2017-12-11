@@ -51,7 +51,7 @@ public class TransController {
             try {
                 if (StringUtils.hasText(type)) {
                     Permission permission = permissionService.getUrlByType(type);
-                    if (permission == null) {
+                    if (permission == null || !StringUtils.hasText(permission.getType())) {
                         returnJson = SendAppJSONUtil.getRequireParamsMissingObject("type错误!");
                     } else {
                         sb.append("ip=" + SecurityUtil.getRemoteIP(req) + " user=" + SecurityUtils.getSubject().getPrincipal() + " type=" + type);
