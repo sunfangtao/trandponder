@@ -14,35 +14,20 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 @Controller
-@RequestMapping("alipayNotice")
-public class AliPayController {
+@RequestMapping("payNotice")
+public class PayController {
     private static Logger logger = Logger.getLogger(TransController.class);
 
     @Resource
     private PermissionService permissionService;
 
     /**
-     * 租车订单支付回调
+     * 订单支付回调
      *
      * @param req
      * @param res
      */
-    @RequestMapping("rentalOrder")
-    public void rentalOrder(HttpServletRequest req, HttpServletResponse res) {
-        try {
-            res.getWriter().write(payProcess(req, res));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 租车订单支付回调
-     *
-     * @param req
-     * @param res
-     */
-    @RequestMapping("commonOrder")
+    @RequestMapping("order")
     public void commonOrder(HttpServletRequest req, HttpServletResponse res) {
         try {
             res.getWriter().write(payProcess(req, res));
@@ -67,16 +52,27 @@ public class AliPayController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            client.setParameter("notityXml", notityXml);
-            type = "rentalOrderWXNotice";
+            if (notityXml != null && notityXml.length() > 0) {
+                client.setParameter("notityXml", notityXml);
+                int startIndex = notityXml.indexOf("<attach><![CDATA[");
+                int endIndex = notityXml.indexOf("]]></attach>");
+                type = notityXml.substring(startIndex + "<attach><![CDATA[".length(), endIndex);
+            }
         } else {
             // 阿里支付
-            type = "rentalOrderAliNotice";
+            if (map.containsKey("passback_params")) {
+                type = map.get("passback_params")[0];
+            }
         }
-        Permission permission = permissionService.getUrlByType(type);
-        if (permission == null) {
-            return "";
+        if (type != null) {
+            Permission permission = permissionService.getUrlByType(type);
+            if (permission == null) {
+                return "";
+            }
+            String result = client.sendByGet(permission.getAddress() + permission.getUrl(), null);
+            logger.info("result=" + result);
+            return result;
         }
-        return client.sendByGet(permission.getAddress() + permission.getUrl(), null);
+        return "";
     }
 }
